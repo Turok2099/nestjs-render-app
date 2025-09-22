@@ -1,0 +1,71 @@
+import { Controller, Get, Post, Body, Logger } from '@nestjs/common';
+import { StripeService } from './stripe.service';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+
+@ApiTags('Stripe')
+@Controller('stripe')
+export class StripeController {
+  private readonly logger = new Logger(StripeController.name);
+
+  constructor(private readonly stripeService: StripeService) {}
+
+  @Get('test-connection')
+  @ApiOperation({ summary: 'Verificar conectividad con Stripe' })
+  @ApiResponse({ status: 200, description: 'Conectividad verificada' })
+  @ApiResponse({ status: 500, description: 'Error de conectividad' })
+  async testConnection() {
+    try {
+      const isConnected = await this.stripeService.testConnection();
+
+      if (isConnected) {
+        return {
+          success: true,
+          message: '✅ Conectividad con Stripe verificada correctamente',
+          timestamp: new Date().toISOString(),
+        };
+      } else {
+        return {
+          success: false,
+          message: '❌ Error al conectar con Stripe',
+          timestamp: new Date().toISOString(),
+        };
+      }
+    } catch (error) {
+      this.logger.error('Error en test de conectividad:', error.message);
+      return {
+        success: false,
+        message: `❌ Error: ${error.message}`,
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+
+  @Post('create-product')
+  @ApiOperation({ summary: 'Crear un producto de prueba en Stripe' })
+  async createTestProduct(
+    @Body() body: { name: string; description?: string },
+  ) {
+    try {
+      const product = await this.stripeService.createProduct(
+        body.name || 'Plan de Prueba TrainUp',
+        body.description || 'Plan de suscripción de prueba para TrainUp',
+      );
+
+      return {
+        success: true,
+        message: 'Producto creado exitosamente',
+        product: {
+          id: product.id,
+          name: product.name,
+          description: product.description,
+        },
+      };
+    } catch (error) {
+      this.logger.error('Error al crear producto:', error.message);
+      return {
+        success: false,
+        message: `Error al crear producto: ${error.message}`,
+      };
+    }
+  }
+}
