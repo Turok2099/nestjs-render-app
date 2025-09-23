@@ -25,10 +25,10 @@ const reviews_module_1 = require("./reviews/reviews.module");
 const stripe_module_1 = require("./stripe/stripe.module");
 const payments_module_1 = require("./payments/payments.module");
 const health_module_1 = require("./health/health.module");
-const exercises_simple_module_1 = require("./exercises/exercises-simple.module");
+const exercises_module_1 = require("./exercises/exercises.module");
 let AppModule = class AppModule {
     configure(consumer) {
-        consumer.apply(logger_middleware_1.LoggerMiddleware).forRoutes('*');
+        consumer.apply(logger_middleware_1.LoggerMiddleware).forRoutes("*");
     }
 };
 exports.AppModule = AppModule;
@@ -37,12 +37,12 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
-                envFilePath: '.env.development',
+                envFilePath: ".env.development",
                 load: [typeorm_2.typeOrmConfig],
             }),
             typeorm_1.TypeOrmModule.forRootAsync({
                 inject: [config_1.ConfigService],
-                useFactory: (configService) => configService.get('typeorm'),
+                useFactory: (configService) => configService.get("typeorm"),
             }),
             schedule_1.ScheduleModule.forRoot(),
             plans_module_1.PlansModule,
@@ -55,7 +55,7 @@ exports.AppModule = AppModule = __decorate([
             stripe_module_1.StripeModule,
             payments_module_1.PaymentsModule,
             health_module_1.HealthModule,
-            exercises_simple_module_1.ExercisesSimpleModule,
+            exercises_module_1.ExercisesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

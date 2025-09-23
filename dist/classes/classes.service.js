@@ -20,29 +20,33 @@ const class_entity_1 = require("./entities/class.entity");
 const reservation_entity_1 = require("./entities/reservation.entity");
 const user_entity_1 = require("../user/entities/user.entity");
 const GOAL_ALIASES = {
-    'perder peso': 'weight_loss',
-    'bajar de peso': 'weight_loss',
-    'definicion': 'definition',
-    'definición': 'definition',
-    'masa muscular': 'muscle_gain',
-    'fuerza': 'muscle_gain',
-    'fuerza maxima': 'muscle_gain',
-    'fuerza máxima': 'muscle_gain',
-    'hipertrofia': 'muscle_gain',
-    'resistencia muscular': 'cardio',
-    'cardio': 'cardio',
-    'movilidad': 'mobility',
+    "perder peso": "weight_loss",
+    "bajar de peso": "weight_loss",
+    definicion: "definition",
+    definición: "definition",
+    "masa muscular": "muscle_gain",
+    fuerza: "muscle_gain",
+    "fuerza maxima": "muscle_gain",
+    "fuerza máxima": "muscle_gain",
+    hipertrofia: "muscle_gain",
+    "resistencia muscular": "cardio",
+    cardio: "cardio",
+    movilidad: "mobility",
 };
 function normalize(s) {
     if (!s)
-        return '';
-    return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+        return "";
+    return s
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim();
 }
 function toGoalTag(input) {
     if (!input)
         return undefined;
     const n = normalize(input);
-    if (['weight_loss', 'definition', 'muscle_gain', 'mobility', 'cardio'].includes(n))
+    if (["weight_loss", "definition", "muscle_gain", "mobility", "cardio"].includes(n))
         return n;
     return GOAL_ALIASES[n];
 }
@@ -59,7 +63,7 @@ let ClassesService = class ClassesService {
     }
     async create(dto) {
         if (dto.startTime && dto.endTime && dto.startTime >= dto.endTime) {
-            throw new common_1.BadRequestException('startTime must be before endTime');
+            throw new common_1.BadRequestException("startTime must be before endTime");
         }
         const entity = this.classesRepo.create({
             title: dto.title,
@@ -93,7 +97,7 @@ let ClassesService = class ClassesService {
     async findByDay(dayOfWeek) {
         return this.classesRepo.find({
             where: { dayOfWeek: dayOfWeek, isActive: true },
-            order: { startTime: 'ASC' },
+            order: { startTime: "ASC" },
         });
     }
     async findById(id) {
@@ -117,32 +121,35 @@ let ClassesService = class ClassesService {
             where.date = q.date;
         let startRange;
         let endRange;
-        if (q.timeOfDay === 'morning') {
-            startRange = toPgTime('05:00');
-            endRange = toPgTime('12:00');
+        if (q.timeOfDay === "morning") {
+            startRange = toPgTime("05:00");
+            endRange = toPgTime("12:00");
         }
-        if (q.timeOfDay === 'afternoon') {
-            startRange = toPgTime('12:00');
-            endRange = toPgTime('18:00');
+        if (q.timeOfDay === "afternoon") {
+            startRange = toPgTime("12:00");
+            endRange = toPgTime("18:00");
         }
-        if (q.timeOfDay === 'evening') {
-            startRange = toPgTime('18:00');
-            endRange = toPgTime('23:00');
+        if (q.timeOfDay === "evening") {
+            startRange = toPgTime("18:00");
+            endRange = toPgTime("23:00");
         }
-        const timeFilter = (startRange && endRange) ? { startTime: (0, typeorm_2.Between)(startRange, endRange) } : {};
+        const timeFilter = startRange && endRange
+            ? { startTime: (0, typeorm_2.Between)(startRange, endRange) }
+            : {};
         const [items, total] = await this.classesRepo.findAndCount({
             where: { ...where, ...timeFilter },
-            order: { date: 'ASC', startTime: 'ASC' },
-            skip, take,
+            order: { date: "ASC", startTime: "ASC" },
+            skip,
+            take,
         });
         const ids = items.map((c) => c.id);
         const counts = ids.length
             ? await this.resRepo
-                .createQueryBuilder('r')
-                .select('r.class_id', 'classId')
-                .addSelect("SUM(CASE WHEN r.status = 'booked' THEN 1 ELSE 0 END)", 'booked')
-                .where('r.class_id IN (:...ids)', { ids })
-                .groupBy('r.class_id')
+                .createQueryBuilder("r")
+                .select("r.class_id", "classId")
+                .addSelect("SUM(CASE WHEN r.status = 'booked' THEN 1 ELSE 0 END)", "booked")
+                .where("r.class_id IN (:...ids)", { ids })
+                .groupBy("r.class_id")
                 .getRawMany()
             : [];
         const byId = new Map(counts.map((c) => [c.classId, Number(c.booked)]));
@@ -164,14 +171,15 @@ let ClassesService = class ClassesService {
         return { page, limit: take, total, items: mapped };
     }
     async getActiveClassOrThrow(classId) {
-        const cls = await this.classesRepo.findOne({ where: { id: classId, isActive: true } });
+        const cls = await this.classesRepo.findOne({
+            where: { id: classId, isActive: true },
+        });
         if (!cls)
-            throw new common_1.BadRequestException('Class not found or inactive');
+            throw new common_1.BadRequestException("Class not found or inactive");
         return cls;
     }
     async adminList(q) {
-        const base = await this.schedule({ ...q, goal: q.goal });
-        if (q.includeInactive === 'true') {
+        if (q.includeInactive === "true") {
             const where = {};
             const tag = toGoalTag(q.goal);
             if (tag)
@@ -180,45 +188,50 @@ let ClassesService = class ClassesService {
                 where.trainerId = q.trainerId;
             if (q.date)
                 where.date = q.date;
-            const [inactive, count] = await this.classesRepo.findAndCount({
-                where: { ...where, isActive: false },
-                order: { date: 'ASC', startTime: 'ASC' },
+            const [allClasses, count] = await this.classesRepo.findAndCount({
+                where: where,
+                order: { date: "ASC", startTime: "ASC" },
             });
-            const ids = inactive.map((c) => c.id);
+            const ids = allClasses.map((c) => c.id);
             if (ids.length) {
                 const counts = await this.resRepo
-                    .createQueryBuilder('r')
-                    .select('r.class_id', 'classId')
-                    .addSelect("SUM(CASE WHEN r.status = 'booked' THEN 1 ELSE 0 END)", 'booked')
-                    .where('r.class_id IN (:...ids)', { ids })
-                    .groupBy('r.class_id')
+                    .createQueryBuilder("r")
+                    .select("r.class_id", "classId")
+                    .addSelect("SUM(CASE WHEN r.status = 'booked' THEN 1 ELSE 0 END)", "booked")
+                    .where("r.class_id IN (:...ids)", { ids })
+                    .groupBy("r.class_id")
                     .getRawMany();
                 const byId = new Map(counts.map((c) => [c.classId, Number(c.booked)]));
-                base.items.push(...inactive.map((c) => ({
-                    id: c.id,
-                    title: c.title,
-                    date: c.date,
-                    startTime: c.startTime,
-                    endTime: c.endTime,
-                    capacity: c.capacity,
-                    occupied: byId.get(c.id) || 0,
-                    available: Math.max(c.capacity - (byId.get(c.id) || 0), 0),
-                    goalTag: c.goalTag,
-                    trainerId: c.trainerId,
-                    isActive: c.isActive,
-                })));
-                base.total += count;
+                return {
+                    items: allClasses.map((c) => ({
+                        id: c.id,
+                        title: c.title,
+                        date: c.date,
+                        startTime: c.startTime,
+                        endTime: c.endTime,
+                        capacity: c.capacity,
+                        occupied: byId.get(c.id) || 0,
+                        available: Math.max(c.capacity - (byId.get(c.id) || 0), 0),
+                        goalTag: c.goalTag,
+                        trainerId: c.trainerId,
+                        isActive: c.isActive,
+                    })),
+                    total: count,
+                };
+            }
+            else {
+                return { items: [], total: 0 };
             }
         }
-        return base;
+        return this.schedule({ ...q, goal: q.goal });
     }
     async adminUpdate(id, dto) {
         const cls = await this.classesRepo.findOne({ where: { id } });
         if (!cls)
-            throw new common_1.BadRequestException('Class not found');
+            throw new common_1.BadRequestException("Class not found");
         Object.assign(cls, dto);
         if (cls.startTime && cls.endTime && cls.startTime >= cls.endTime) {
-            throw new common_1.BadRequestException('startTime must be before endTime');
+            throw new common_1.BadRequestException("startTime must be before endTime");
         }
         if (dto.startTime)
             cls.startTime = toPgTime(dto.startTime);
@@ -231,18 +244,18 @@ let ClassesService = class ClassesService {
     async adminSetStatus(id, isActive) {
         const ok = await this.classesRepo.update({ id }, { isActive });
         if (!ok.affected)
-            throw new common_1.BadRequestException('Class not found');
+            throw new common_1.BadRequestException("Class not found");
         return { id, isActive };
     }
     async classReservationsFor(user, classId) {
         const cls = await this.classesRepo.findOne({ where: { id: classId } });
         if (!cls)
-            throw new common_1.BadRequestException('Class not found');
-        if (user.role !== 'admin' && cls.trainerId !== user.userId) {
-            throw new common_1.ForbiddenException('Not allowed');
+            throw new common_1.BadRequestException("Class not found");
+        if (user.role !== "admin" && cls.trainerId !== user.userId) {
+            throw new common_1.ForbiddenException("Not allowed");
         }
         const res = await this.resRepo.find({
-            where: { classId, status: (0, typeorm_2.In)(['booked', 'attended', 'no_show']) },
+            where: { classId, status: (0, typeorm_2.In)(["booked", "attended", "no_show"]) },
         });
         if (!res.length)
             return [];
@@ -259,7 +272,7 @@ let ClassesService = class ClassesService {
     async adminAssignTrainer(id, trainerId) {
         const ok = await this.classesRepo.update({ id }, { trainerId });
         if (!ok.affected)
-            throw new common_1.BadRequestException('Class not found');
+            throw new common_1.BadRequestException("Class not found");
         const updated = await this.classesRepo.findOne({ where: { id } });
         return updated;
     }

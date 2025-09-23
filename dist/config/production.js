@@ -10,6 +10,7 @@ exports.productionConfig = (0, config_1.registerAs)("production", () => ({
         origin: [
             process.env.FRONTEND_URL || "https://front-amber-tau.vercel.app",
             "http://localhost:3000",
+            "http://localhost:3001",
         ],
         methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
         allowedHeaders: "Content-Type, Accept, Authorization, Cookie, X-Requested-With",
