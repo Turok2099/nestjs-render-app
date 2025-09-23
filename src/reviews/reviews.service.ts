@@ -55,7 +55,7 @@ export class ReviewsService {
       comment: dto.comment ?? null,
       classId: dto.classId ?? null,
       trainerId: dto.trainerId ?? null,
-      status: 'approved', // Cambia a 'pending' si quieres moderación manual
+      status: 'pending', // Los comentarios requieren aprobación del admin
       isActive: true,
     });
     return this.reviews.save(entity);

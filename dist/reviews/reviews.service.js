@@ -48,7 +48,7 @@ let ReviewsService = class ReviewsService {
             comment: dto.comment ?? null,
             classId: dto.classId ?? null,
             trainerId: dto.trainerId ?? null,
-            status: 'approved',
+            status: 'pending',
             isActive: true,
         });
         return this.reviews.save(entity);

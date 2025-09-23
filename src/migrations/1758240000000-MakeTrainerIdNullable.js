@@ -15,3 +15,4 @@ module.exports = class MakeTrainerIdNullable1758240000000 {
         await queryRunner.query(`ALTER TABLE "classes" ALTER COLUMN "trainer_id" SET NOT NULL`);
     }
 }
+
