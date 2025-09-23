@@ -10,32 +10,32 @@ export class CloudinaryService {
     console.log('📁 [CloudinaryService] Archivo:', file.originalname, 'Tamaño:', file.size, 'bytes');
     console.log('📁 [CloudinaryService] MIME type:', file.mimetype);
     
-    return new Promise((resolve, reject) => {
-      const uploadStream = this.cloudinary.uploader.upload_stream(
-        {
-          resource_type: 'image',
-          folder: 'exercises',
-        },
-        (error, result) => {
-          if (error) {
-            console.error('❌ [CloudinaryService] Error en upload_stream:', error);
-            reject(error);
-          } else {
-            console.log('📋 [CloudinaryService] Resultado de Cloudinary:', result);
-            if (result && result.secure_url) {
-              console.log('✅ [CloudinaryService] URL generada:', result.secure_url);
-              resolve(result.secure_url);
-            } else {
-              console.error('❌ [CloudinaryService] Resultado sin secure_url:', result);
-              reject(new Error("Cloudinary result is missing secure_url."));
-            }
-          }
-        },
-      );
+    try {
+      // Convertir buffer a base64 string
+      const base64String = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      
+      console.log('📤 [CloudinaryService] Subiendo imagen como base64...');
+      
+      // Usar el método upload directamente con base64
+      const result = await this.cloudinary.uploader.upload(base64String, {
+        resource_type: 'image',
+        folder: 'exercises',
+        public_id: `exercise_${Date.now()}`,
+      });
 
-      console.log('📤 [CloudinaryService] Enviando buffer a Cloudinary...');
-      uploadStream.end(file.buffer);
-    });
+      console.log('📋 [CloudinaryService] Resultado de Cloudinary:', result);
+      
+      if (result && result.secure_url) {
+        console.log('✅ [CloudinaryService] URL generada:', result.secure_url);
+        return result.secure_url;
+      } else {
+        console.error('❌ [CloudinaryService] Resultado sin secure_url:', result);
+        throw new Error("Cloudinary result is missing secure_url.");
+      }
+    } catch (error) {
+      console.error('❌ [CloudinaryService] Error en upload:', error);
+      throw error;
+    }
   }
 
   async deleteImage(publicUrl: string): Promise<void> {

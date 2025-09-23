@@ -12,12 +12,14 @@ import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
 import { ClassHistory } from './entities/class-history.entity';
 import { ReservationsMeController } from './reservations.me.controller';
 import { ReservationsUserController } from './reservations.user.controller';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 
 @Module({
   imports: [
   TypeOrmModule.forFeature([Class, Reservation, User, ClassHistory]),
-  SubscriptionsModule, 
+  SubscriptionsModule,
+  CloudinaryModule,
 ],
   controllers: [ClassesController, ReservationsController, ReservationsMeController, ReservationsUserController],
   providers: [ClassesService, ReservationsService, ClassesSeedService],

@@ -3,6 +3,8 @@ import {
   BadRequestException,
   ForbiddenException,
   NotFoundException,
+  Inject,
+  forwardRef,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Between, FindOptionsWhere, In, Repository } from "typeorm";
@@ -13,6 +15,7 @@ import { AdminClassesQueryDto } from "./dto/admin-classes-query.dto";
 import { UpdateClassDto } from "./dto/update-class.dto";
 import { CreateClassDto } from "./dto/create-class.dto";
 import { User } from "../user/entities/user.entity";
+import { CloudinaryService } from "../cloudinary/cloudinary.service";
 
 const GOAL_ALIASES: Record<
   string,
@@ -72,28 +75,61 @@ export class ClassesService {
     @InjectRepository(Reservation)
     private readonly resRepo: Repository<Reservation>,
     @InjectRepository(User) private readonly usersRepo: Repository<User>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   // ---------- Crear clase (admin) ----------
-  async create(dto: CreateClassDto): Promise<Class> {
+  async create(
+    dto: CreateClassDto,
+    imageFile?: Express.Multer.File,
+  ): Promise<Class> {
+    console.log('🏫 [ClassesService] Iniciando creación de clase...');
+    console.log('📋 [ClassesService] DTO recibido:', JSON.stringify(dto, null, 2));
+    console.log('🖼️ [ClassesService] Archivo de imagen:', imageFile ? `Presente (${imageFile.originalname}, ${imageFile.size} bytes)` : 'Ausente');
+
     if (dto.startTime && dto.endTime && dto.startTime >= dto.endTime) {
       throw new BadRequestException("startTime must be before endTime");
     }
 
-    const entity = this.classesRepo.create({
-      title: dto.title,
-      trainerId: dto.trainerId,
-      date: dto.date,
-      startTime: toPgTime(dto.startTime)!, // normaliza
-      endTime: toPgTime(dto.endTime)!, // normaliza
-      capacity: dto.capacity ?? 20,
-      goalTag: dto.goalTag ?? null,
-      coach: dto.coach ?? null,
-      isActive: dto.isActive ?? true,
-    });
+    let imageUrl: string | null = null;
 
-    entity.setDateWithDayOfWeek(dto.date);
-    return this.classesRepo.save(entity);
+    if (imageFile) {
+      try {
+        console.log('☁️ [ClassesService] Subiendo imagen a Cloudinary...');
+        imageUrl = await this.cloudinaryService.uploadImage(imageFile);
+        console.log('✅ [ClassesService] Imagen subida exitosamente:', imageUrl);
+      } catch (error) {
+        console.error('❌ [ClassesService] Error subiendo imagen a Cloudinary:', error);
+        throw new Error(`Error subiendo imagen: ${error.message}`);
+      }
+    }
+
+    try {
+      console.log('💾 [ClassesService] Creando entidad de clase...');
+      const entity = this.classesRepo.create({
+        title: dto.title,
+        trainerId: dto.trainerId,
+        date: dto.date,
+        startTime: toPgTime(dto.startTime)!, // normaliza
+        endTime: toPgTime(dto.endTime)!, // normaliza
+        capacity: dto.capacity ?? 20,
+        goalTag: dto.goalTag ?? null,
+        coach: dto.coach ?? null,
+        isActive: dto.isActive ?? true,
+        imageUrl, // Agregar URL de la imagen
+      });
+
+      entity.setDateWithDayOfWeek(dto.date);
+      
+      console.log('💾 [ClassesService] Guardando clase en base de datos...');
+      const savedClass = await this.classesRepo.save(entity);
+      console.log('✅ [ClassesService] Clase guardada exitosamente:', savedClass.id);
+
+      return savedClass;
+    } catch (error) {
+      console.error('❌ [ClassesService] Error guardando clase:', error);
+      throw error;
+    }
   }
 
   // ---------- Listado simple (si lo usas en algún sitio) ----------

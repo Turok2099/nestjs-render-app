@@ -10,7 +10,10 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Request,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ClassesService } from './classes.service';
 import { ScheduleQueryDto } from './dto/schedule-query.dto';
@@ -95,8 +98,12 @@ export class ClassesController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Crear nueva clase (admin)' })
   @ApiResponse({ status: 201 })
-  async create(@Body() createClassDto: CreateClassDto): Promise<Class> {
-    return this.classesService.create(createClassDto);
+  @UseInterceptors(FileInterceptor('image'))
+  async create(
+    @Body() createClassDto: CreateClassDto,
+    @UploadedFile() imageFile?: Express.Multer.File,
+  ): Promise<Class> {
+    return this.classesService.create(createClassDto, imageFile);
   }
 
   @Patch(':id')

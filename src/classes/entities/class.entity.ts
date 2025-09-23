@@ -55,6 +55,9 @@ export class Class {
   @Column({ type: 'simple-json', nullable: true }) // Añadido: Columna para el array de coaches
   coach: string[] | null;
 
+  @Column({ name: 'image_url', type: 'varchar', nullable: true, length: 500 })
+  imageUrl: string | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
   
