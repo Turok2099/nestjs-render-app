@@ -31,19 +31,40 @@ export class ExercisesService {
     createExerciseDto: CreateExerciseDto,
     imageFile?: Express.Multer.File,
   ): Promise<Exercise> {
+    console.log('🔍 [ExercisesService] Iniciando creación de ejercicio...');
+    console.log('📋 [ExercisesService] DTO recibido:', JSON.stringify(createExerciseDto, null, 2));
+    console.log('🖼️ [ExercisesService] Archivo de imagen:', imageFile ? `Presente (${imageFile.originalname}, ${imageFile.size} bytes)` : 'Ausente');
+
     let imageUrl: string | null = null;
 
     // Subir imagen a Cloudinary si existe
     if (imageFile) {
-      imageUrl = await this.cloudinaryService.uploadImage(imageFile);
+      try {
+        console.log('☁️ [ExercisesService] Subiendo imagen a Cloudinary...');
+        imageUrl = await this.cloudinaryService.uploadImage(imageFile);
+        console.log('✅ [ExercisesService] Imagen subida exitosamente:', imageUrl);
+      } catch (error) {
+        console.error('❌ [ExercisesService] Error subiendo imagen a Cloudinary:', error);
+        throw new Error(`Error subiendo imagen: ${error.message}`);
+      }
     }
 
-    const exercise = this.repo.create({
-      ...createExerciseDto,
-      imageUrl,
-    });
+    try {
+      console.log('💾 [ExercisesService] Creando entidad de ejercicio...');
+      const exercise = this.repo.create({
+        ...createExerciseDto,
+        imageUrl,
+      });
 
-    return await this.repo.save(exercise);
+      console.log('💾 [ExercisesService] Guardando ejercicio en base de datos...');
+      const savedExercise = await this.repo.save(exercise);
+      console.log('✅ [ExercisesService] Ejercicio guardado exitosamente:', savedExercise.id);
+
+      return savedExercise;
+    } catch (error) {
+      console.error('❌ [ExercisesService] Error guardando ejercicio:', error);
+      throw error;
+    }
   }
 
   async list(q: ListExercisesDto) {

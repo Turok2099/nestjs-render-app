@@ -6,6 +6,10 @@ export class CloudinaryService {
   constructor(@Inject('CLOUDINARY') private readonly cloudinary: typeof Cloudinary) {}
 
   async uploadImage(file: Express.Multer.File): Promise<string> {
+    console.log('☁️ [CloudinaryService] Iniciando subida de imagen...');
+    console.log('📁 [CloudinaryService] Archivo:', file.originalname, 'Tamaño:', file.size, 'bytes');
+    console.log('📁 [CloudinaryService] MIME type:', file.mimetype);
+    
     return new Promise((resolve, reject) => {
       const uploadStream = this.cloudinary.uploader.upload_stream(
         {
@@ -13,18 +17,23 @@ export class CloudinaryService {
           folder: 'exercises',
         },
         (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          if (result && result.secure_url) {
-            resolve(result.secure_url);
+          if (error) {
+            console.error('❌ [CloudinaryService] Error en upload_stream:', error);
+            reject(error);
           } else {
-            reject(new Error("Cloudinary result is missing secure_url."));
+            console.log('📋 [CloudinaryService] Resultado de Cloudinary:', result);
+            if (result && result.secure_url) {
+              console.log('✅ [CloudinaryService] URL generada:', result.secure_url);
+              resolve(result.secure_url);
+            } else {
+              console.error('❌ [CloudinaryService] Resultado sin secure_url:', result);
+              reject(new Error("Cloudinary result is missing secure_url."));
+            }
           }
-        }
         },
       );
 
+      console.log('📤 [CloudinaryService] Enviando buffer a Cloudinary...');
       uploadStream.end(file.buffer);
     });
   }
