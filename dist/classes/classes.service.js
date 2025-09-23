@@ -325,7 +325,7 @@ let ClassesService = class ClassesService {
         if (!trainer) {
             throw new common_1.ForbiddenException("User is not a trainer");
         }
-        const updateResult = await this.classesRepo.update({ id: classId }, { trainerId: null });
+        const updateResult = await this.classesRepo.update({ id: classId }, { trainerId: "00000000-0000-0000-0000-000000000000" });
         if (!updateResult.affected) {
             throw new common_1.BadRequestException("Failed to unassign trainer from class");
         }

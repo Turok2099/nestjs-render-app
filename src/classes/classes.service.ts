@@ -404,10 +404,10 @@ export class ClassesService {
       throw new ForbiddenException("User is not a trainer");
     }
 
-    // Desasignar el entrenador (poner trainerId como null)
+    // Desasignar el entrenador (usar UUID vacío temporalmente hasta que la migración se aplique)
     const updateResult = await this.classesRepo.update(
       { id: classId },
-      { trainerId: null },
+      { trainerId: "00000000-0000-0000-0000-000000000000" },
     );
     if (!updateResult.affected) {
       throw new BadRequestException("Failed to unassign trainer from class");
