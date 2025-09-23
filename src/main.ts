@@ -10,28 +10,16 @@ import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 async function createApp() {
   const app = await NestFactory.create(AppModule);
 
-  // Configuración robusta de CORS
-  const allowedOrigins = [
-    "https://front-amber-tau.vercel.app", // Frontend en producción
-    "http://localhost:3000", // Desarrollo local
-    "http://localhost:3001", // Desarrollo local (puerto alternativo)
-    "http://127.0.0.1:3000", // Alternativa localhost
-    "http://127.0.0.1:3001", // Alternativa localhost (puerto alternativo)
-  ];
-
+  // Configuración simplificada de CORS
   app.enableCors({
-    origin: (origin, callback) => {
-      // Permitir requests sin origin (ej: mobile apps, Postman, etc.)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.log(`🚫 Origin no permitido: ${origin}`);
-        callback(new Error("No permitido por CORS"), false);
-      }
-    },
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    origin: [
+      "https://front-amber-tau.vercel.app", // Frontend en producción
+      "http://localhost:3000", // Desarrollo local
+      "http://localhost:3001", // Desarrollo local (puerto alternativo)
+      "http://127.0.0.1:3000", // Alternativa localhost
+      "http://127.0.0.1:3001", // Alternativa localhost (puerto alternativo)
+    ],
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
       "Accept",
@@ -45,38 +33,6 @@ async function createApp() {
     credentials: true,
     optionsSuccessStatus: 200,
     preflightContinue: false,
-  });
-
-  // Middleware para manejar preflight requests (OPTIONS)
-  app.use((req, res, next) => {
-    if (req.method === "OPTIONS") {
-      // Obtener el origin de la petición
-      const origin = req.headers.origin;
-
-      // Verificar si el origin está permitido
-      if (allowedOrigins.includes(origin)) {
-        res.header("Access-Control-Allow-Origin", origin);
-      } else {
-        // Fallback al frontend de producción
-        res.header(
-          "Access-Control-Allow-Origin",
-          "https://front-amber-tau.vercel.app",
-        );
-      }
-
-      res.header(
-        "Access-Control-Allow-Methods",
-        "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-      );
-      res.header(
-        "Access-Control-Allow-Headers",
-        "Content-Type, Accept, Authorization, Cookie, X-Requested-With, Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
-      );
-      res.header("Access-Control-Allow-Credentials", "true");
-      res.header("Access-Control-Max-Age", "86400"); // Cache preflight por 24 horas
-      return res.status(200).end();
-    }
-    next();
   });
 
   app.use(cookieParser());
