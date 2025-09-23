@@ -16,12 +16,12 @@ export class Class {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, { eager: false, nullable: false })
+  @ManyToOne(() => User, { eager: false, nullable: true })
   @JoinColumn({ name: 'trainer_id' })
-  trainer: User;
+  trainer: User | null;
 
-  @Column({ name: 'trainer_id' })
-  trainerId: string;
+  @Column({ name: 'trainer_id', nullable: true })
+  trainerId: string | null;
 
   @Column({ length: 100 })
   title: string;

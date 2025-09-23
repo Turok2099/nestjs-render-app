@@ -32,12 +32,12 @@ __decorate([
     __metadata("design:type", String)
 ], Class.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { eager: false, nullable: false }),
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { eager: false, nullable: true }),
     (0, typeorm_1.JoinColumn)({ name: 'trainer_id' }),
     __metadata("design:type", user_entity_1.User)
 ], Class.prototype, "trainer", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'trainer_id' }),
+    (0, typeorm_1.Column)({ name: 'trainer_id', nullable: true }),
     __metadata("design:type", String)
 ], Class.prototype, "trainerId", void 0);
 __decorate([

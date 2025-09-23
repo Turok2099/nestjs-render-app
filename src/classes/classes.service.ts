@@ -99,7 +99,7 @@ export class ClassesService {
   // ---------- Listado simple (si lo usas en algún sitio) ----------
   async findAll() {
     const classes = await this.classesRepo.find({
-      relations: ['trainer'] // Incluir la relación con el trainer
+      relations: ["trainer"], // Incluir la relación con el trainer
     });
     return classes.map((c) => ({
       id: c.id,
@@ -334,7 +334,9 @@ export class ClassesService {
   // +++ NUEVO: asignar entrenador a una clase (para trainers) +++
   async assignTrainerToClass(classId: string, trainerId: string) {
     // Verificar que la clase existe
-    const classEntity = await this.classesRepo.findOne({ where: { id: classId } });
+    const classEntity = await this.classesRepo.findOne({
+      where: { id: classId },
+    });
     if (!classEntity) {
       throw new NotFoundException("Class not found");
     }
@@ -345,62 +347,78 @@ export class ClassesService {
     }
 
     // Verificar que el usuario es realmente un trainer
-    const trainer = await this.usersRepo.findOne({ where: { id: trainerId, role: 'trainer' } });
+    const trainer = await this.usersRepo.findOne({
+      where: { id: trainerId, role: "trainer" },
+    });
     if (!trainer) {
       throw new ForbiddenException("User is not a trainer");
     }
 
     // Actualizar la clase con el nuevo entrenador
-    const updateResult = await this.classesRepo.update({ id: classId }, { trainerId });
+    const updateResult = await this.classesRepo.update(
+      { id: classId },
+      { trainerId },
+    );
     if (!updateResult.affected) {
       throw new BadRequestException("Failed to assign trainer to class");
     }
 
     // Devolver la clase actualizada
-    const updatedClass = await this.classesRepo.findOne({ 
+    const updatedClass = await this.classesRepo.findOne({
       where: { id: classId },
-      relations: ['trainer']
+      relations: ["trainer"],
     });
-    
+
     return updatedClass!;
   }
 
   // +++ NUEVO: desasignar entrenador de una clase (para trainers) +++
   async unassignTrainerFromClass(classId: string, trainerId: string) {
     // Verificar que la clase existe
-    const classEntity = await this.classesRepo.findOne({ where: { id: classId } });
+    const classEntity = await this.classesRepo.findOne({
+      where: { id: classId },
+    });
     if (!classEntity) {
       throw new NotFoundException("Class not found");
     }
 
     // Verificar que la clase está activa
     if (!classEntity.isActive) {
-      throw new BadRequestException("Cannot unassign trainer from inactive class");
+      throw new BadRequestException(
+        "Cannot unassign trainer from inactive class",
+      );
     }
 
     // Verificar que el entrenador actual es el que está asignado
     if (classEntity.trainerId !== trainerId) {
-      throw new ForbiddenException("You can only unassign yourself from classes you are assigned to");
+      throw new ForbiddenException(
+        "You can only unassign yourself from classes you are assigned to",
+      );
     }
 
     // Verificar que el usuario es realmente un trainer
-    const trainer = await this.usersRepo.findOne({ where: { id: trainerId, role: 'trainer' } });
+    const trainer = await this.usersRepo.findOne({
+      where: { id: trainerId, role: "trainer" },
+    });
     if (!trainer) {
       throw new ForbiddenException("User is not a trainer");
     }
 
     // Desasignar el entrenador (poner trainerId como null)
-    const updateResult = await this.classesRepo.update({ id: classId }, { trainerId: null });
+    const updateResult = await this.classesRepo.update(
+      { id: classId },
+      { trainerId: null },
+    );
     if (!updateResult.affected) {
       throw new BadRequestException("Failed to unassign trainer from class");
     }
 
     // Devolver la clase actualizada
-    const updatedClass = await this.classesRepo.findOne({ 
+    const updatedClass = await this.classesRepo.findOne({
       where: { id: classId },
-      relations: ['trainer']
+      relations: ["trainer"],
     });
-    
+
     return updatedClass!;
   }
 }

@@ -81,7 +81,7 @@ let ClassesService = class ClassesService {
     }
     async findAll() {
         const classes = await this.classesRepo.find({
-            relations: ['trainer']
+            relations: ["trainer"],
         });
         return classes.map((c) => ({
             id: c.id,
@@ -281,14 +281,18 @@ let ClassesService = class ClassesService {
         return updated;
     }
     async assignTrainerToClass(classId, trainerId) {
-        const classEntity = await this.classesRepo.findOne({ where: { id: classId } });
+        const classEntity = await this.classesRepo.findOne({
+            where: { id: classId },
+        });
         if (!classEntity) {
             throw new common_1.NotFoundException("Class not found");
         }
         if (!classEntity.isActive) {
             throw new common_1.BadRequestException("Cannot assign trainer to inactive class");
         }
-        const trainer = await this.usersRepo.findOne({ where: { id: trainerId, role: 'trainer' } });
+        const trainer = await this.usersRepo.findOne({
+            where: { id: trainerId, role: "trainer" },
+        });
         if (!trainer) {
             throw new common_1.ForbiddenException("User is not a trainer");
         }
@@ -298,12 +302,14 @@ let ClassesService = class ClassesService {
         }
         const updatedClass = await this.classesRepo.findOne({
             where: { id: classId },
-            relations: ['trainer']
+            relations: ["trainer"],
         });
         return updatedClass;
     }
     async unassignTrainerFromClass(classId, trainerId) {
-        const classEntity = await this.classesRepo.findOne({ where: { id: classId } });
+        const classEntity = await this.classesRepo.findOne({
+            where: { id: classId },
+        });
         if (!classEntity) {
             throw new common_1.NotFoundException("Class not found");
         }
@@ -313,7 +319,9 @@ let ClassesService = class ClassesService {
         if (classEntity.trainerId !== trainerId) {
             throw new common_1.ForbiddenException("You can only unassign yourself from classes you are assigned to");
         }
-        const trainer = await this.usersRepo.findOne({ where: { id: trainerId, role: 'trainer' } });
+        const trainer = await this.usersRepo.findOne({
+            where: { id: trainerId, role: "trainer" },
+        });
         if (!trainer) {
             throw new common_1.ForbiddenException("User is not a trainer");
         }
@@ -323,7 +331,7 @@ let ClassesService = class ClassesService {
         }
         const updatedClass = await this.classesRepo.findOne({
             where: { id: classId },
-            relations: ['trainer']
+            relations: ["trainer"],
         });
         return updatedClass;
     }
