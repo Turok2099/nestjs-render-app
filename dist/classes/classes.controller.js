@@ -72,6 +72,10 @@ let ClassesController = class ClassesController {
         const updated = await this.classesService.adminAssignTrainer(id, dto.trainerId);
         return { ok: true, data: updated };
     }
+    async assignMeAsTrainer(user, id) {
+        const updated = await this.classesService.assignTrainerToClass(id, user.userId);
+        return { ok: true, data: updated };
+    }
     async adminToggle(id, dto) {
         const res = await this.classesService.adminSetStatus(id, dto.isActive);
         return { ok: true, data: res };
@@ -207,6 +211,19 @@ __decorate([
     __metadata("design:paramtypes", [String, admin_assign_trainer_dto_1.AdminAssignTrainerDto]),
     __metadata("design:returntype", Promise)
 ], ClassesController.prototype, "adminAssignTrainer", null);
+__decorate([
+    (0, common_1.Patch)(':id/assign-me'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('trainer'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiParam)({ name: 'id', format: 'uuid' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Asignarse como entrenador de una clase (trainer)' }),
+    __param(0, (0, get_user_decorator_1.GetUser)()),
+    __param(1, (0, common_1.Param)('id', new common_1.ParseUUIDPipe())),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], ClassesController.prototype, "assignMeAsTrainer", null);
 __decorate([
     (0, common_1.Patch)('admin/:id/toggle'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

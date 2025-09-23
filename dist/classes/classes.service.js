@@ -276,6 +276,28 @@ let ClassesService = class ClassesService {
         const updated = await this.classesRepo.findOne({ where: { id } });
         return updated;
     }
+    async assignTrainerToClass(classId, trainerId) {
+        const classEntity = await this.classesRepo.findOne({ where: { id: classId } });
+        if (!classEntity) {
+            throw new common_1.NotFoundException("Class not found");
+        }
+        if (!classEntity.isActive) {
+            throw new common_1.BadRequestException("Cannot assign trainer to inactive class");
+        }
+        const trainer = await this.usersRepo.findOne({ where: { id: trainerId, role: 'trainer' } });
+        if (!trainer) {
+            throw new common_1.ForbiddenException("User is not a trainer");
+        }
+        const updateResult = await this.classesRepo.update({ id: classId }, { trainerId });
+        if (!updateResult.affected) {
+            throw new common_1.BadRequestException("Failed to assign trainer to class");
+        }
+        const updatedClass = await this.classesRepo.findOne({
+            where: { id: classId },
+            relations: ['trainer']
+        });
+        return updatedClass;
+    }
 };
 exports.ClassesService = ClassesService;
 exports.ClassesService = ClassesService = __decorate([

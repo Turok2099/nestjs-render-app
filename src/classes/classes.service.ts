@@ -326,4 +326,38 @@ export class ClassesService {
     const updated = await this.classesRepo.findOne({ where: { id } });
     return updated!;
   }
+
+  // +++ NUEVO: asignar entrenador a una clase (para trainers) +++
+  async assignTrainerToClass(classId: string, trainerId: string) {
+    // Verificar que la clase existe
+    const classEntity = await this.classesRepo.findOne({ where: { id: classId } });
+    if (!classEntity) {
+      throw new NotFoundException("Class not found");
+    }
+
+    // Verificar que la clase está activa
+    if (!classEntity.isActive) {
+      throw new BadRequestException("Cannot assign trainer to inactive class");
+    }
+
+    // Verificar que el usuario es realmente un trainer
+    const trainer = await this.usersRepo.findOne({ where: { id: trainerId, role: 'trainer' } });
+    if (!trainer) {
+      throw new ForbiddenException("User is not a trainer");
+    }
+
+    // Actualizar la clase con el nuevo entrenador
+    const updateResult = await this.classesRepo.update({ id: classId }, { trainerId });
+    if (!updateResult.affected) {
+      throw new BadRequestException("Failed to assign trainer to class");
+    }
+
+    // Devolver la clase actualizada
+    const updatedClass = await this.classesRepo.findOne({ 
+      where: { id: classId },
+      relations: ['trainer']
+    });
+    
+    return updatedClass!;
+  }
 }
