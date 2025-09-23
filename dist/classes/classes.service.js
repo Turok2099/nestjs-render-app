@@ -298,6 +298,31 @@ let ClassesService = class ClassesService {
         });
         return updatedClass;
     }
+    async unassignTrainerFromClass(classId, trainerId) {
+        const classEntity = await this.classesRepo.findOne({ where: { id: classId } });
+        if (!classEntity) {
+            throw new common_1.NotFoundException("Class not found");
+        }
+        if (!classEntity.isActive) {
+            throw new common_1.BadRequestException("Cannot unassign trainer from inactive class");
+        }
+        if (classEntity.trainerId !== trainerId) {
+            throw new common_1.ForbiddenException("You can only unassign yourself from classes you are assigned to");
+        }
+        const trainer = await this.usersRepo.findOne({ where: { id: trainerId, role: 'trainer' } });
+        if (!trainer) {
+            throw new common_1.ForbiddenException("User is not a trainer");
+        }
+        const updateResult = await this.classesRepo.update({ id: classId }, { trainerId: null });
+        if (!updateResult.affected) {
+            throw new common_1.BadRequestException("Failed to unassign trainer from class");
+        }
+        const updatedClass = await this.classesRepo.findOne({
+            where: { id: classId },
+            relations: ['trainer']
+        });
+        return updatedClass;
+    }
 };
 exports.ClassesService = ClassesService;
 exports.ClassesService = ClassesService = __decorate([

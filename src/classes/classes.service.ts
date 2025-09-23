@@ -360,4 +360,43 @@ export class ClassesService {
     
     return updatedClass!;
   }
+
+  // +++ NUEVO: desasignar entrenador de una clase (para trainers) +++
+  async unassignTrainerFromClass(classId: string, trainerId: string) {
+    // Verificar que la clase existe
+    const classEntity = await this.classesRepo.findOne({ where: { id: classId } });
+    if (!classEntity) {
+      throw new NotFoundException("Class not found");
+    }
+
+    // Verificar que la clase está activa
+    if (!classEntity.isActive) {
+      throw new BadRequestException("Cannot unassign trainer from inactive class");
+    }
+
+    // Verificar que el entrenador actual es el que está asignado
+    if (classEntity.trainerId !== trainerId) {
+      throw new ForbiddenException("You can only unassign yourself from classes you are assigned to");
+    }
+
+    // Verificar que el usuario es realmente un trainer
+    const trainer = await this.usersRepo.findOne({ where: { id: trainerId, role: 'trainer' } });
+    if (!trainer) {
+      throw new ForbiddenException("User is not a trainer");
+    }
+
+    // Desasignar el entrenador (poner trainerId como null)
+    const updateResult = await this.classesRepo.update({ id: classId }, { trainerId: null });
+    if (!updateResult.affected) {
+      throw new BadRequestException("Failed to unassign trainer from class");
+    }
+
+    // Devolver la clase actualizada
+    const updatedClass = await this.classesRepo.findOne({ 
+      where: { id: classId },
+      relations: ['trainer']
+    });
+    
+    return updatedClass!;
+  }
 }

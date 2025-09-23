@@ -174,6 +174,21 @@ export class ClassesController {
     return { ok: true, data: updated };
   }
 
+  // +++ NUEVO: desasignarse como entrenador (trainer) +++
+  @Patch(':id/unassign-me')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('trainer')
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiOperation({ summary: 'Desasignarse como entrenador de una clase (trainer)' })
+  async unassignMeAsTrainer(
+    @GetUser() user: { userId: string },
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
+    const updated = await this.classesService.unassignTrainerFromClass(id, user.userId);
+    return { ok: true, data: updated };
+  }
+
   // +++ OPCIONAL: alias de toggle (admin) para front +++
   // (Hace lo mismo que tu PATCH /classes/:id/status, pero con la ruta que quizá pidieron)
   @Patch('admin/:id/toggle')
