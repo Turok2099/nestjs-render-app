@@ -98,7 +98,9 @@ export class ClassesService {
 
   // ---------- Listado simple (si lo usas en algún sitio) ----------
   async findAll() {
-    const classes = await this.classesRepo.find();
+    const classes = await this.classesRepo.find({
+      relations: ['trainer'] // Incluir la relación con el trainer
+    });
     return classes.map((c) => ({
       id: c.id,
       // name lo dejamos para compat con front antiguo (igual a title)
@@ -109,6 +111,8 @@ export class ClassesService {
       endTime: c.endTime,
       dayOfWeek: c.dayOfWeek,
       coach: c.coach ?? [],
+      trainerName: c.trainer?.name || null, // Agregar trainerName desde la relación
+      trainerId: c.trainerId, // Agregar trainerId también
       capacity: c.capacity,
       createdAt: c.createdAt,
     }));

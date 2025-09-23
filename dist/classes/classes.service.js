@@ -80,7 +80,9 @@ let ClassesService = class ClassesService {
         return this.classesRepo.save(entity);
     }
     async findAll() {
-        const classes = await this.classesRepo.find();
+        const classes = await this.classesRepo.find({
+            relations: ['trainer']
+        });
         return classes.map((c) => ({
             id: c.id,
             name: c.title,
@@ -90,6 +92,8 @@ let ClassesService = class ClassesService {
             endTime: c.endTime,
             dayOfWeek: c.dayOfWeek,
             coach: c.coach ?? [],
+            trainerName: c.trainer?.name || null,
+            trainerId: c.trainerId,
             capacity: c.capacity,
             createdAt: c.createdAt,
         }));
