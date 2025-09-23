@@ -72,14 +72,17 @@ export class AdminExercisesController {
   @Get()
   @ApiOperation({ summary: 'Listar ejercicios (admin)' })
   @ApiQuery({ name: 'q', required: false, type: String })
-  @ApiQuery({ name: 'muscleGroup', required: false, type: String, example: 'Pecho' })
-  @ApiQuery({ name: 'type', required: false, type: String, example: 'Máquina' })
+  @ApiQuery({ name: 'muscleGroup', required: false, type: String, example: 'PECHO' })
+  @ApiQuery({ name: 'type', required: false, type: String, example: 'muscular' })
   @ApiQuery({ name: 'programTag', required: false, enum: ['max','hyper'] })
   @ApiQuery({ name: 'isActive', required: false, type: String, example: 'true' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 20 })
-  @ApiOkResponse({ description: 'Listado mapeado con las claves del mock' })
-  list(@Query() q: ListExercisesDto) { return this.svc.list(q); }
+  @ApiOkResponse({ description: 'Listado de ejercicios con estructura de BD' })
+  async list(@Query() q: ListExercisesDto) {
+    const result = await this.svc.list(q);
+    return result.data; // Devolver directamente el array de ejercicios
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'Obtener ejercicio por ID' })

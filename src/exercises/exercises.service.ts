@@ -43,9 +43,9 @@ export class ExercisesService {
     const limit = this.toNum((q as any).limit, 20);
 
     const where: any = {};
-    if (q.q) where.name = ILike(`%${q.q}%`);
-    if (q.muscleGroup) where.muscleGroup = q.muscleGroup;
-    if (q.type) where.type = q.type;
+    if (q.q) where.ejercicio = ILike(`%${q.q}%`);
+    if (q.muscleGroup) where.grupo = q.muscleGroup;
+    if (q.type) where.categoria = q.type;
     if (q.programTag) where.programTag = q.programTag;
     if (typeof q.isActive === 'string') where.isActive = q.isActive === 'true';
 
@@ -56,17 +56,23 @@ export class ExercisesService {
       take: limit,
     });
 
-    // Mapear a las claves del mock del front
+    // Mapear a las claves que espera el frontend
     const data = rows.map(e => ({
       id: e.id,
-      isActive: e.isActive,
-      nombre: e.name,
-      series: e.series ?? undefined,
-      repeticiones: e.repetitions ?? undefined,
-      grupoMuscular: e.muscleGroup,
-      tipo: e.type ?? undefined,
-      programTag: e.programTag ?? undefined,
-      imagen: e.imageUrl ?? undefined, // Nueva propiedad para la imagen
+      grupo: e.grupo,
+      ejercicio: e.ejercicio,
+      categoria: e.categoria,
+      imagen_grupo: e.imagenGrupo,
+      imagen_ejercicio: e.imagenEjercicio,
+      fuerza_series: e.fuerzaSeries,
+      fuerza_repeticiones: e.fuerzaRepeticiones,
+      hipertrofia_series: e.hipertrofiaSeries,
+      hipertrofia_repeticiones: e.hipertrofiaRepeticiones,
+      resistencia_series: e.resistenciaSeries,
+      resistencia_repeticiones: e.resistenciaRepeticiones,
+      is_active: e.isActive,
+      created_at: e.createdAt,
+      updated_at: e.updatedAt,
     }));
 
     return { ok: true, total, page, limit, data };
