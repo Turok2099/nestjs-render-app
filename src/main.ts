@@ -14,31 +14,33 @@ async function createApp() {
   const allowedOrigins = [
     "https://front-amber-tau.vercel.app", // Frontend en producción
     "http://localhost:3000", // Desarrollo local
+    "http://localhost:3001", // Desarrollo local (puerto alternativo)
     "http://127.0.0.1:3000", // Alternativa localhost
+    "http://127.0.0.1:3001", // Alternativa localhost (puerto alternativo)
   ];
 
   app.enableCors({
     origin: (origin, callback) => {
       // Permitir requests sin origin (ej: mobile apps, Postman, etc.)
       if (!origin) return callback(null, true);
-      
+
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         console.log(`🚫 Origin no permitido: ${origin}`);
-        callback(new Error('No permitido por CORS'), false);
+        callback(new Error("No permitido por CORS"), false);
       }
     },
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     allowedHeaders: [
-      "Content-Type", 
-      "Accept", 
-      "Authorization", 
-      "Cookie", 
+      "Content-Type",
+      "Accept",
+      "Authorization",
+      "Cookie",
       "X-Requested-With",
       "Origin",
       "Access-Control-Request-Method",
-      "Access-Control-Request-Headers"
+      "Access-Control-Request-Headers",
     ],
     credentials: true,
     optionsSuccessStatus: 200,
@@ -50,15 +52,18 @@ async function createApp() {
     if (req.method === "OPTIONS") {
       // Obtener el origin de la petición
       const origin = req.headers.origin;
-      
+
       // Verificar si el origin está permitido
       if (allowedOrigins.includes(origin)) {
         res.header("Access-Control-Allow-Origin", origin);
       } else {
         // Fallback al frontend de producción
-        res.header("Access-Control-Allow-Origin", "https://front-amber-tau.vercel.app");
+        res.header(
+          "Access-Control-Allow-Origin",
+          "https://front-amber-tau.vercel.app",
+        );
       }
-      
+
       res.header(
         "Access-Control-Allow-Methods",
         "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",

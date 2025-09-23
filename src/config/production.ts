@@ -10,6 +10,7 @@ export const productionConfig = registerAs("production", () => ({
     origin: [
       process.env.FRONTEND_URL || "https://front-amber-tau.vercel.app",
       "http://localhost:3000", // Para desarrollo local
+      "http://localhost:3001", // Para desarrollo local (puerto alternativo)
     ],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     allowedHeaders:
