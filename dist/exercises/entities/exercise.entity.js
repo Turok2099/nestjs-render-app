@@ -15,50 +15,101 @@ let Exercise = class Exercise {
 };
 exports.Exercise = Exercise;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
+    (0, typeorm_1.PrimaryGeneratedColumn)("uuid"),
     __metadata("design:type", String)
 ], Exercise.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 120 }),
+    (0, typeorm_1.Column)({ name: "ejercicio", length: 120 }),
     __metadata("design:type", String)
-], Exercise.prototype, "name", void 0);
+], Exercise.prototype, "ejercicio", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'muscle_group', length: 50 }),
+    (0, typeorm_1.Column)({ name: "grupo", length: 50, nullable: true }),
     __metadata("design:type", String)
-], Exercise.prototype, "muscleGroup", void 0);
+], Exercise.prototype, "grupo", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'int', nullable: true }),
+    (0, typeorm_1.Column)({ name: "categoria", length: 30, nullable: true }),
+    __metadata("design:type", String)
+], Exercise.prototype, "categoria", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: "imagen_grupo",
+        type: "varchar",
+        nullable: true,
+        length: 500,
+    }),
+    __metadata("design:type", String)
+], Exercise.prototype, "imagenGrupo", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: "imagen_ejercicio",
+        type: "varchar",
+        nullable: true,
+        length: 500,
+    }),
+    __metadata("design:type", String)
+], Exercise.prototype, "imagenEjercicio", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "fuerza_series", type: "int", nullable: true }),
     __metadata("design:type", Number)
-], Exercise.prototype, "series", void 0);
+], Exercise.prototype, "fuerzaSeries", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'int', nullable: true }),
+    (0, typeorm_1.Column)({ name: "fuerza_repeticiones", type: "int", nullable: true }),
     __metadata("design:type", Number)
-], Exercise.prototype, "repetitions", void 0);
+], Exercise.prototype, "fuerzaRepeticiones", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 30, nullable: true }),
+    (0, typeorm_1.Column)({ name: "hipertrofia_series", type: "int", nullable: true }),
+    __metadata("design:type", Number)
+], Exercise.prototype, "hipertrofiaSeries", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "hipertrofia_repeticiones", type: "int", nullable: true }),
+    __metadata("design:type", Number)
+], Exercise.prototype, "hipertrofiaRepeticiones", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "resistencia_series", type: "int", nullable: true }),
+    __metadata("design:type", Number)
+], Exercise.prototype, "resistenciaSeries", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        name: "resistencia_repeticiones",
+        type: "varchar",
+        nullable: true,
+        length: 50,
+    }),
     __metadata("design:type", String)
-], Exercise.prototype, "type", void 0);
+], Exercise.prototype, "resistenciaRepeticiones", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'program_tag', type: 'varchar', length: 10, nullable: true }),
-    __metadata("design:type", String)
-], Exercise.prototype, "programTag", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ name: 'image_url', type: 'varchar', nullable: true, length: 500 }),
-    __metadata("design:type", String)
-], Exercise.prototype, "imageUrl", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ name: 'is_active', type: 'boolean', default: true }),
+    (0, typeorm_1.Column)({ name: "is_active", type: "boolean", default: true }),
     __metadata("design:type", Boolean)
 ], Exercise.prototype, "isActive", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ name: 'created_at' }),
+    (0, typeorm_1.CreateDateColumn)({ name: "created_at" }),
     __metadata("design:type", Date)
 ], Exercise.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)({ name: 'updated_at' }),
+    (0, typeorm_1.UpdateDateColumn)({ name: "updated_at" }),
     __metadata("design:type", Date)
 ], Exercise.prototype, "updatedAt", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "int", nullable: true }),
+    __metadata("design:type", Number)
+], Exercise.prototype, "series", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "int", nullable: true }),
+    __metadata("design:type", Number)
+], Exercise.prototype, "repetitions", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "varchar", length: 30, nullable: true }),
+    __metadata("design:type", String)
+], Exercise.prototype, "type", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "program_tag", type: "varchar", length: 10, nullable: true }),
+    __metadata("design:type", String)
+], Exercise.prototype, "programTag", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "image_url", type: "varchar", nullable: true, length: 500 }),
+    __metadata("design:type", String)
+], Exercise.prototype, "imageUrl", void 0);
 exports.Exercise = Exercise = __decorate([
-    (0, typeorm_1.Entity)({ name: 'exercises' }),
-    (0, typeorm_1.Index)(['muscleGroup', 'name'])
+    (0, typeorm_1.Entity)({ name: "exercises" }),
+    (0, typeorm_1.Index)(["grupo", "ejercicio"])
 ], Exercise);

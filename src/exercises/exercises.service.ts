@@ -1,12 +1,17 @@
 // src/exercises/exercises.service.ts
-import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
-import { Exercise } from './entities/exercise.entity';
-import { ListExercisesDto } from './dto/list-exercise.dto';
-import { CreateExerciseDto } from './dto/create-exercise.dto';
-import { UpdateExerciseDto } from './dto/update-exercise.dto';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import {
+  Injectable,
+  NotFoundException,
+  Inject,
+  forwardRef,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { ILike, Repository } from "typeorm";
+import { Exercise } from "./entities/exercise.entity";
+import { ListExercisesDto } from "./dto/list-exercise.dto";
+import { CreateExerciseDto } from "./dto/create-exercise.dto";
+import { UpdateExerciseDto } from "./dto/update-exercise.dto";
+import { CloudinaryService } from "../cloudinary/cloudinary.service";
 
 @Injectable()
 export class ExercisesService {
@@ -17,12 +22,15 @@ export class ExercisesService {
   ) {}
 
   private toNum(v: unknown, def: number) {
-    if (v === undefined || v === null || v === '') return def;
+    if (v === undefined || v === null || v === "") return def;
     const n = Number(v);
     return Number.isFinite(n) && n > 0 ? n : def;
   }
 
-  async create(createExerciseDto: CreateExerciseDto, imageFile?: Express.Multer.File): Promise<Exercise> {
+  async create(
+    createExerciseDto: CreateExerciseDto,
+    imageFile?: Express.Multer.File,
+  ): Promise<Exercise> {
     let imageUrl: string | null = null;
 
     // Subir imagen a Cloudinary si existe
@@ -47,17 +55,17 @@ export class ExercisesService {
     if (q.muscleGroup) where.grupo = q.muscleGroup;
     if (q.type) where.categoria = q.type;
     if (q.programTag) where.programTag = q.programTag;
-    if (typeof q.isActive === 'string') where.isActive = q.isActive === 'true';
+    if (typeof q.isActive === "string") where.isActive = q.isActive === "true";
 
     const [rows, total] = await this.repo.findAndCount({
       where,
-      order: { createdAt: 'DESC' },
+      order: { createdAt: "DESC" },
       skip: (page - 1) * limit,
       take: limit,
     });
 
     // Mapear a las claves que espera el frontend
-    const data = rows.map(e => ({
+    const data = rows.map((e) => ({
       id: e.id,
       grupo: e.grupo,
       ejercicio: e.ejercicio,
@@ -81,12 +89,16 @@ export class ExercisesService {
   async findOne(id: string): Promise<Exercise> {
     const exercise = await this.repo.findOne({ where: { id } });
     if (!exercise) {
-      throw new NotFoundException('Ejercicio no encontrado');
+      throw new NotFoundException("Ejercicio no encontrado");
     }
     return exercise;
   }
 
-  async update(id: string, updateExerciseDto: UpdateExerciseDto, imageFile?: Express.Multer.File): Promise<Exercise> {
+  async update(
+    id: string,
+    updateExerciseDto: UpdateExerciseDto,
+    imageFile?: Express.Multer.File,
+  ): Promise<Exercise> {
     const exercise = await this.findOne(id);
 
     // Si hay una nueva imagen, subirla y eliminar la anterior si existe
@@ -95,7 +107,7 @@ export class ExercisesService {
       if (exercise.imageUrl) {
         await this.cloudinaryService.deleteImage(exercise.imageUrl);
       }
-      
+
       // Subir nueva imagen
       exercise.imageUrl = await this.cloudinaryService.uploadImage(imageFile);
     }
@@ -108,7 +120,7 @@ export class ExercisesService {
 
   async toggle(id: string, isActive: boolean) {
     const ex = await this.repo.findOne({ where: { id } });
-    if (!ex) throw new NotFoundException('Ejercicio no encontrado');
+    if (!ex) throw new NotFoundException("Ejercicio no encontrado");
     ex.isActive = isActive;
     const saved = await this.repo.save(ex);
     return { ok: true, data: { id: saved.id, isActive: saved.isActive } };
@@ -116,12 +128,12 @@ export class ExercisesService {
 
   async remove(id: string): Promise<void> {
     const exercise = await this.findOne(id);
-    
+
     // Eliminar imagen de Cloudinary si existe
     if (exercise.imageUrl) {
       await this.cloudinaryService.deleteImage(exercise.imageUrl);
     }
-    
+
     await this.repo.remove(exercise);
   }
 }

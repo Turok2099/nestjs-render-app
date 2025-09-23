@@ -24,7 +24,7 @@ let ExercisesService = class ExercisesService {
         this.cloudinaryService = cloudinaryService;
     }
     toNum(v, def) {
-        if (v === undefined || v === null || v === '')
+        if (v === undefined || v === null || v === "")
             return def;
         const n = Number(v);
         return Number.isFinite(n) && n > 0 ? n : def;
@@ -45,38 +45,44 @@ let ExercisesService = class ExercisesService {
         const limit = this.toNum(q.limit, 20);
         const where = {};
         if (q.q)
-            where.name = (0, typeorm_2.ILike)(`%${q.q}%`);
+            where.ejercicio = (0, typeorm_2.ILike)(`%${q.q}%`);
         if (q.muscleGroup)
-            where.muscleGroup = q.muscleGroup;
+            where.grupo = q.muscleGroup;
         if (q.type)
-            where.type = q.type;
+            where.categoria = q.type;
         if (q.programTag)
             where.programTag = q.programTag;
-        if (typeof q.isActive === 'string')
-            where.isActive = q.isActive === 'true';
+        if (typeof q.isActive === "string")
+            where.isActive = q.isActive === "true";
         const [rows, total] = await this.repo.findAndCount({
             where,
-            order: { createdAt: 'DESC' },
+            order: { createdAt: "DESC" },
             skip: (page - 1) * limit,
             take: limit,
         });
-        const data = rows.map(e => ({
+        const data = rows.map((e) => ({
             id: e.id,
-            isActive: e.isActive,
-            nombre: e.name,
-            series: e.series ?? undefined,
-            repeticiones: e.repetitions ?? undefined,
-            grupoMuscular: e.muscleGroup,
-            tipo: e.type ?? undefined,
-            programTag: e.programTag ?? undefined,
-            imagen: e.imageUrl ?? undefined,
+            grupo: e.grupo,
+            ejercicio: e.ejercicio,
+            categoria: e.categoria,
+            imagen_grupo: e.imagenGrupo,
+            imagen_ejercicio: e.imagenEjercicio,
+            fuerza_series: e.fuerzaSeries,
+            fuerza_repeticiones: e.fuerzaRepeticiones,
+            hipertrofia_series: e.hipertrofiaSeries,
+            hipertrofia_repeticiones: e.hipertrofiaRepeticiones,
+            resistencia_series: e.resistenciaSeries,
+            resistencia_repeticiones: e.resistenciaRepeticiones,
+            is_active: e.isActive,
+            created_at: e.createdAt,
+            updated_at: e.updatedAt,
         }));
         return { ok: true, total, page, limit, data };
     }
     async findOne(id) {
         const exercise = await this.repo.findOne({ where: { id } });
         if (!exercise) {
-            throw new common_1.NotFoundException('Ejercicio no encontrado');
+            throw new common_1.NotFoundException("Ejercicio no encontrado");
         }
         return exercise;
     }
@@ -94,7 +100,7 @@ let ExercisesService = class ExercisesService {
     async toggle(id, isActive) {
         const ex = await this.repo.findOne({ where: { id } });
         if (!ex)
-            throw new common_1.NotFoundException('Ejercicio no encontrado');
+            throw new common_1.NotFoundException("Ejercicio no encontrado");
         ex.isActive = isActive;
         const saved = await this.repo.save(ex);
         return { ok: true, data: { id: saved.id, isActive: saved.isActive } };

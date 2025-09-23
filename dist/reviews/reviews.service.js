@@ -28,19 +28,19 @@ let ReviewsService = class ReviewsService {
     async assertUserCanReview(userId) {
         const count = await this.reservations.count({
             where: [
-                { userId, status: 'booked' },
-                { userId, status: 'attended' },
+                { userId, status: "booked" },
+                { userId, status: "attended" },
             ],
         });
         if (count === 0) {
-            throw new common_1.ForbiddenException('Debes haber reservado al menos una clase para reseñar');
+            throw new common_1.ForbiddenException("Debes haber reservado al menos una clase para reseñar");
         }
     }
     async create(userId, dto) {
         await this.assertUserCanReview(userId);
         const hasActive = await this.subs.hasActive(userId);
         if (!hasActive) {
-            throw new common_1.ForbiddenException('Necesitas una suscripción activa para reseñar');
+            throw new common_1.ForbiddenException("Necesitas una suscripción activa para reseñar");
         }
         const entity = this.reviews.create({
             userId,
@@ -48,7 +48,7 @@ let ReviewsService = class ReviewsService {
             comment: dto.comment ?? null,
             classId: dto.classId ?? null,
             trainerId: dto.trainerId ?? null,
-            status: 'pending',
+            status: "pending",
             isActive: true,
         });
         return this.reviews.save(entity);
@@ -57,7 +57,7 @@ let ReviewsService = class ReviewsService {
         const page = q.page ?? 1;
         const take = Math.min(q.limit ?? 10, 50);
         const skip = (page - 1) * take;
-        const where = { isActive: true, status: 'approved' };
+        const where = { isActive: true, status: "approved" };
         if (q.rating)
             where.rating = q.rating;
         const [items, total] = await this.reviews.findAndCount({
@@ -71,9 +71,9 @@ let ReviewsService = class ReviewsService {
                 createdAt: true,
                 user: { id: true, name: true },
             },
-            order: q.order === 'top'
-                ? { rating: 'DESC', createdAt: 'DESC' }
-                : { createdAt: 'DESC' },
+            order: q.order === "top"
+                ? { rating: "DESC", createdAt: "DESC" }
+                : { createdAt: "DESC" },
             take,
             skip,
         });
@@ -85,7 +85,7 @@ let ReviewsService = class ReviewsService {
         const skip = (page - 1) * take;
         const [items, total] = await this.reviews.findAndCount({
             where: { userId, isActive: true },
-            order: { createdAt: 'DESC' },
+            order: { createdAt: "DESC" },
             take,
             skip,
         });
@@ -94,12 +94,12 @@ let ReviewsService = class ReviewsService {
     async update(userId, id, dto) {
         const r = await this.reviews.findOne({ where: { id } });
         if (!r || !r.isActive)
-            throw new common_1.NotFoundException('Review no encontrada');
+            throw new common_1.NotFoundException("Review no encontrada");
         if (r.userId !== userId)
-            throw new common_1.ForbiddenException('No puedes editar esta review');
+            throw new common_1.ForbiddenException("No puedes editar esta review");
         if (dto.rating !== undefined) {
             if (dto.rating < 1 || dto.rating > 5)
-                throw new common_1.BadRequestException('Rating inválido');
+                throw new common_1.BadRequestException("Rating inválido");
             r.rating = dto.rating;
         }
         if (dto.comment !== undefined)
@@ -113,9 +113,9 @@ let ReviewsService = class ReviewsService {
     async softDelete(userId, id) {
         const r = await this.reviews.findOne({ where: { id } });
         if (!r || !r.isActive)
-            throw new common_1.NotFoundException('Review no encontrada');
+            throw new common_1.NotFoundException("Review no encontrada");
         if (r.userId !== userId)
-            throw new common_1.ForbiddenException('No puedes eliminar esta review');
+            throw new common_1.ForbiddenException("No puedes eliminar esta review");
         r.isActive = false;
         return this.reviews.save(r);
     }
@@ -124,7 +124,7 @@ let ReviewsService = class ReviewsService {
         const take = Math.min(q.limit ?? 10, 100);
         const skip = (page - 1) * take;
         const where = {};
-        if (!q.includeInactive || q.includeInactive !== 'true')
+        if (!q.includeInactive || q.includeInactive !== "true")
             where.isActive = true;
         if (q.status)
             where.status = q.status;
@@ -132,9 +132,9 @@ let ReviewsService = class ReviewsService {
             where.rating = q.rating;
         const [items, total] = await this.reviews.findAndCount({
             where,
-            order: q.order === 'top'
-                ? { rating: 'DESC', createdAt: 'DESC' }
-                : { createdAt: 'DESC' },
+            order: q.order === "top"
+                ? { rating: "DESC", createdAt: "DESC" }
+                : { createdAt: "DESC" },
             take,
             skip,
         });
@@ -143,37 +143,45 @@ let ReviewsService = class ReviewsService {
     async adminSetStatus(id, isActive) {
         const r = await this.reviews.findOne({ where: { id } });
         if (!r)
-            throw new common_1.NotFoundException('Review no encontrada');
+            throw new common_1.NotFoundException("Review no encontrada");
         r.isActive = isActive;
         return this.reviews.save(r);
     }
     async adminModerate(id, status) {
         const r = await this.reviews.findOne({ where: { id } });
         if (!r)
-            throw new common_1.NotFoundException('Review no encontrada');
+            throw new common_1.NotFoundException("Review no encontrada");
         r.status = status;
         return this.reviews.save(r);
     }
     async stats() {
         const base = (await this.reviews
-            .createQueryBuilder('r')
-            .select('COALESCE(AVG(r.rating), 0)', 'avg')
-            .addSelect('COUNT(*)', 'total')
-            .where('r.is_active = true')
+            .createQueryBuilder("r")
+            .select("COALESCE(AVG(r.rating), 0)", "avg")
+            .addSelect("COUNT(*)", "total")
+            .where("r.is_active = true")
             .andWhere("r.status = 'approved'")
-            .getRawOne()) ??
-            { avg: null, total: null };
+            .getRawOne()) ?? {
+            avg: null,
+            total: null,
+        };
         const total = Number(base.total ?? 0);
         const average = total ? Number(Number(base.avg ?? 0).toFixed(2)) : 0;
         const rows = await this.reviews
-            .createQueryBuilder('r')
-            .select('r.rating', 'rating')
-            .addSelect('COUNT(*)', 'count')
-            .where('r.is_active = true')
+            .createQueryBuilder("r")
+            .select("r.rating", "rating")
+            .addSelect("COUNT(*)", "count")
+            .where("r.is_active = true")
             .andWhere("r.status = 'approved'")
-            .groupBy('r.rating')
+            .groupBy("r.rating")
             .getRawMany();
-        const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        const distribution = {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 0,
+        };
         for (const row of rows) {
             distribution[Number(row.rating)] = Number(row.count);
         }
