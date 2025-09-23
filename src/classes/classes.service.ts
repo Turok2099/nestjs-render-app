@@ -171,7 +171,7 @@ export class ClassesService {
 
   // ---------- Admin ----------
   async adminList(q: AdminClassesQueryDto) {
-    const base = await this.schedule({ ...q, goal: q.goal });
+    // Si includeInactive=true, obtener TODAS las clases (activas + inactivas)
     if (q.includeInactive === 'true') {
       const where: FindOptionsWhere<Class> = {};
       const tag = toGoalTag(q.goal);
@@ -179,12 +179,12 @@ export class ClassesService {
       if (q.trainerId) (where as any).trainerId = q.trainerId;
       if (q.date) (where as any).date = q.date;
 
-      const [inactive, count] = await this.classesRepo.findAndCount({
-        where: { ...where, isActive: false },
+      const [allClasses, count] = await this.classesRepo.findAndCount({
+        where: where, // Sin filtro de isActive - obtener todas
         order: { date: 'ASC', startTime: 'ASC' },
       });
 
-      const ids = inactive.map((c) => c.id);
+      const ids = allClasses.map((c) => c.id);
       if (ids.length) {
         const counts = await this.resRepo
           .createQueryBuilder('r')
@@ -195,8 +195,9 @@ export class ClassesService {
           .getRawMany<{ classId: string; booked: string }>();
         const byId = new Map(counts.map((c) => [c.classId, Number(c.booked)]));
 
-        base.items.push(
-          ...inactive.map((c) => ({
+        // Devolver todas las clases (activas + inactivas) con sus reservas
+        return {
+          items: allClasses.map((c) => ({
             id: c.id,
             title: c.title,
             date: c.date,
@@ -209,11 +210,16 @@ export class ClassesService {
             trainerId: c.trainerId,
             isActive: c.isActive,
           })),
-        );
-        base.total += count;
+          total: count,
+        };
+      } else {
+        // Si no hay clases, devolver array vacío
+        return { items: [], total: 0 };
       }
     }
-    return base;
+    
+    // Si includeInactive=false, usar el comportamiento original
+    return this.schedule({ ...q, goal: q.goal });
   }
 
   async adminUpdate(id: string, dto: UpdateClassDto) {
