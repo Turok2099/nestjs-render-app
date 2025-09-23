@@ -29,7 +29,7 @@ __decorate([
     __metadata("design:type", class_entity_1.Class)
 ], ClassHistory.prototype, "class", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'class_id', type: 'varchar', length: 36 }),
+    (0, typeorm_1.Column)({ name: 'class_id', type: 'uuid' }),
     __metadata("design:type", String)
 ], ClassHistory.prototype, "classId", void 0);
 __decorate([
@@ -41,7 +41,7 @@ __decorate([
     __metadata("design:type", user_entity_1.User)
 ], ClassHistory.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'user_id', type: 'varchar', length: 36 }),
+    (0, typeorm_1.Column)({ name: 'user_id', type: 'uuid' }),
     __metadata("design:type", String)
 ], ClassHistory.prototype, "userId", void 0);
 __decorate([

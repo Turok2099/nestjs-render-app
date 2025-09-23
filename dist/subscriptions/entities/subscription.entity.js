@@ -25,19 +25,19 @@ __decorate([
     __metadata("design:type", user_entity_1.User)
 ], Subscription.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'user_id' }),
+    (0, typeorm_1.Column)({ name: 'user_id', type: 'uuid' }),
     __metadata("design:type", String)
 ], Subscription.prototype, "userId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'plan_id', type: 'varchar', length: 36, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'plan_id', type: 'uuid', nullable: true }),
     __metadata("design:type", String)
 ], Subscription.prototype, "planId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'start_at', type: 'datetime' }),
+    (0, typeorm_1.Column)({ name: 'start_at', type: 'timestamptz' }),
     __metadata("design:type", Date)
 ], Subscription.prototype, "startAt", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'end_at', type: 'datetime' }),
+    (0, typeorm_1.Column)({ name: 'end_at', type: 'timestamptz' }),
     __metadata("design:type", Date)
 ], Subscription.prototype, "endAt", void 0);
 __decorate([

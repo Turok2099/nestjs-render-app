@@ -25,7 +25,7 @@ __decorate([
     __metadata("design:type", user_entity_1.User)
 ], Payment.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'user_id' }),
+    (0, typeorm_1.Column)({ name: 'user_id', type: 'uuid' }),
     __metadata("design:type", String)
 ], Payment.prototype, "userId", void 0);
 __decorate([
@@ -59,15 +59,15 @@ __decorate([
     __metadata("design:type", String)
 ], Payment.prototype, "paymentType", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'plan_id', type: 'varchar', length: 36, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'plan_id', type: 'uuid', nullable: true }),
     __metadata("design:type", String)
 ], Payment.prototype, "planId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'subscription_id', type: 'varchar', length: 36, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'subscription_id', type: 'uuid', nullable: true }),
     __metadata("design:type", String)
 ], Payment.prototype, "subscriptionId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'stripe_metadata', type: 'json', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'stripe_metadata', type: 'jsonb', nullable: true }),
     __metadata("design:type", Object)
 ], Payment.prototype, "stripeMetadata", void 0);
 __decorate([

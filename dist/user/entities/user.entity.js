@@ -75,7 +75,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({
         name: 'reset_token_expires_at',
-        type: 'datetime',
+        type: 'timestamptz',
         nullable: true,
     }),
     __metadata("design:type", Date)

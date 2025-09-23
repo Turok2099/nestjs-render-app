@@ -24,7 +24,7 @@ export class Payment {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ name: 'user_id' })
+  @Column({ name: 'user_id', type: 'uuid' })
   userId: string;
 
   @Column({ name: 'stripe_payment_intent_id', unique: true })
@@ -52,13 +52,13 @@ export class Payment {
   })
   paymentType: PaymentType;
 
-  @Column({ name: 'plan_id', type: 'varchar', length: 36, nullable: true })
+  @Column({ name: 'plan_id', type: 'uuid', nullable: true })
   planId: string | null;
 
-  @Column({ name: 'subscription_id', type: 'varchar', length: 36, nullable: true })
+  @Column({ name: 'subscription_id', type: 'uuid', nullable: true })
   subscriptionId: string | null;
 
-  @Column({ name: 'stripe_metadata', type: 'json', nullable: true })
+  @Column({ name: 'stripe_metadata', type: 'jsonb', nullable: true })
   stripeMetadata: object | null;
 
   @CreateDateColumn({ name: 'created_at' })

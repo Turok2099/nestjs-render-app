@@ -17,14 +17,14 @@ export class Review {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ name: 'user_id' })
+  @Column({ name: 'user_id', type: 'uuid' })
   userId: string;
 
   // Campos opcionales por si luego reseñan clase/entrenador específico
-  @Column({ name: 'class_id', type: 'varchar', length: 36, nullable: true })
+  @Column({ name: 'class_id', type: 'uuid', nullable: true })
   classId: string | null;
 
-  @Column({ name: 'trainer_id', type: 'varchar', length: 36, nullable: true })
+  @Column({ name: 'trainer_id', type: 'uuid', nullable: true })
   trainerId: string | null;
 
   @Column({ type: 'int' })
@@ -40,6 +40,9 @@ export class Review {
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
 
-  @CreateDateColumn({ name: 'created_at' }) createdAt: Date;
-  @UpdateDateColumn({ name: 'updated_at' }) updatedAt: Date;
+  @CreateDateColumn({ name: 'created_at' }) 
+  createdAt: Date;
+  
+  @UpdateDateColumn({ name: 'updated_at' }) 
+  updatedAt: Date;
 }

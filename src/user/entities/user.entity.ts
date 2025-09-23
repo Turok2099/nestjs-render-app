@@ -63,7 +63,7 @@ export class User {
 
   @Column({
     name: 'reset_token_expires_at',
-    type: 'datetime',
+    type: 'timestamptz',
     nullable: true,
   })
   resetTokenExpiresAt: Date | null;

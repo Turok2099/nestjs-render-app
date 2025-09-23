@@ -24,7 +24,7 @@ export class ClassHistory {
   @JoinColumn({ name: 'class_id' })
   class: Class;
 
-  @Column({ name: 'class_id', type: 'varchar', length: 36 })
+  @Column({ name: 'class_id', type: 'uuid' })
   classId: string;
 
   // Relación al usuario (sin inverso para no exigir user.classHistories)
@@ -35,7 +35,7 @@ export class ClassHistory {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ name: 'user_id', type: 'varchar', length: 36 })
+  @Column({ name: 'user_id', type: 'uuid' })
   userId: string;
 
   @Column({ type: 'varchar', length: 10, default: 'attended' })

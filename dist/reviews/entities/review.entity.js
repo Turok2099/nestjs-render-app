@@ -25,15 +25,15 @@ __decorate([
     __metadata("design:type", user_entity_1.User)
 ], Review.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'user_id' }),
+    (0, typeorm_1.Column)({ name: 'user_id', type: 'uuid' }),
     __metadata("design:type", String)
 ], Review.prototype, "userId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'class_id', type: 'varchar', length: 36, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'class_id', type: 'uuid', nullable: true }),
     __metadata("design:type", String)
 ], Review.prototype, "classId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'trainer_id', type: 'varchar', length: 36, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'trainer_id', type: 'uuid', nullable: true }),
     __metadata("design:type", String)
 ], Review.prototype, "trainerId", void 0);
 __decorate([
