@@ -61,21 +61,34 @@ export class AdminExercisesController {
     )
     imageFile?: Express.Multer.File,
   ) {
-    const exercise = await this.svc.create(createExerciseDto, imageFile);
-    return {
-      ok: true,
-      data: {
-        id: exercise.id,
-        nombre: exercise.ejercicio,
-        grupoMuscular: exercise.grupo,
-        series: exercise.series,
-        repeticiones: exercise.repetitions,
-        tipo: exercise.type,
-        programTag: exercise.programTag,
-        imagen: exercise.imageUrl,
-        isActive: exercise.isActive,
-      },
-    };
+    try {
+      console.log('🎯 [AdminExercisesController] Iniciando creación de ejercicio...');
+      console.log('📋 [AdminExercisesController] DTO:', JSON.stringify(createExerciseDto, null, 2));
+      console.log('🖼️ [AdminExercisesController] Archivo:', imageFile ? `Presente (${imageFile.originalname})` : 'Ausente');
+
+      const exercise = await this.svc.create(createExerciseDto, imageFile);
+      
+      console.log('✅ [AdminExercisesController] Ejercicio creado exitosamente:', exercise.id);
+      
+      return {
+        ok: true,
+        data: {
+          id: exercise.id,
+          nombre: exercise.ejercicio,
+          grupoMuscular: exercise.grupo,
+          series: exercise.series,
+          repeticiones: exercise.repetitions,
+          tipo: exercise.type,
+          programTag: exercise.programTag,
+          imagen: exercise.imageUrl,
+          isActive: exercise.isActive,
+        },
+      };
+    } catch (error) {
+      console.error('❌ [AdminExercisesController] Error en creación:', error);
+      console.error('❌ [AdminExercisesController] Stack:', error.stack);
+      throw error;
+    }
   }
 
   @Get()
