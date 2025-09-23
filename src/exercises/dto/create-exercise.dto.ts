@@ -6,37 +6,55 @@ import { Transform, Type } from 'class-transformer';
 export class CreateExerciseDto {
   @ApiProperty({ description: 'Nombre del ejercicio' })
   @IsString()
-  name: string;
+  ejercicio: string;
 
   @ApiProperty({ description: 'Grupo muscular' })
   @IsString()
-  muscleGroup: string;
+  grupo: string;
 
-  @ApiProperty({ description: 'Número de series', required: false })
-  @IsOptional()
-  @Type(() => Number) //! SOLO TESTING
-  @IsNumber()
-  series?: number;
-
-  @ApiProperty({ description: 'Número de repeticiones', required: false })
-  @IsOptional()
-  @Type(() => Number) //! SOLO TESTING
-  @IsNumber()
-  repetitions?: number;
-
-  @ApiProperty({ description: 'Tipo de ejercicio', required: false })
+  @ApiProperty({ description: 'Categoría del ejercicio', required: false })
   @IsOptional()
   @IsString()
-  type?: string;
+  categoria?: string;
 
-  @ApiProperty({ description: 'Tag del programa', enum: ['max', 'hyper'], required: false })
+  @ApiProperty({ description: 'Series para hipertrofia', required: false })
   @IsOptional()
-  @IsEnum(['max', 'hyper'])
-  programTag?: ProgramTag;
+  @Type(() => Number)
+  @IsNumber()
+  hipertrofia_series?: number;
+
+  @ApiProperty({ description: 'Repeticiones para hipertrofia', required: false })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  hipertrofia_repeticiones?: number;
+
+  @ApiProperty({ description: 'Series para fuerza', required: false })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  fuerza_series?: number;
+
+  @ApiProperty({ description: 'Repeticiones para fuerza', required: false })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  fuerza_repeticiones?: number;
+
+  @ApiProperty({ description: 'Series para resistencia', required: false })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  resistencia_series?: number;
+
+  @ApiProperty({ description: 'Repeticiones para resistencia', required: false })
+  @IsOptional()
+  @IsString()
+  resistencia_repeticiones?: string;
 
   @ApiProperty({ description: 'Estado activo/inactivo', required: false })
   @IsOptional()
-  @Transform(({ value }) => value === 'true') //! SOLO TESTING
+  @Transform(({ value }) => value === 'true')
   @IsBoolean()
   isActive?: boolean;
 }
