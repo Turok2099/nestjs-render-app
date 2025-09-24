@@ -95,8 +95,24 @@ export class ClassesService {
         : "Ausente",
     );
 
-    if (dto.startTime && dto.endTime && dto.startTime >= dto.endTime) {
-      throw new BadRequestException("startTime must be before endTime");
+    if (dto.startTime && dto.endTime) {
+      console.log('🕐 [ClassesService] Validando horarios:');
+      console.log('   startTime:', dto.startTime, '(tipo:', typeof dto.startTime, ')');
+      console.log('   endTime:', dto.endTime, '(tipo:', typeof dto.endTime, ')');
+      
+      // Convertir strings de tiempo a minutos para comparación
+      const startMinutes = dto.startTime.split(':').reduce((acc, time) => (60 * acc) + +time);
+      const endMinutes = dto.endTime.split(':').reduce((acc, time) => (60 * acc) + +time);
+      
+      console.log('   startMinutes:', startMinutes);
+      console.log('   endMinutes:', endMinutes);
+      
+      if (startMinutes >= endMinutes) {
+        console.log('❌ [ClassesService] Error: startTime >= endTime');
+        throw new BadRequestException("startTime must be before endTime");
+      }
+      
+      console.log('✅ [ClassesService] Horarios válidos');
     }
 
     let imageUrl: string | null = null;
