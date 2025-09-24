@@ -45,7 +45,7 @@ export class AdminExercisesController {
   @Post()
   @ApiOperation({ summary: "Crear nuevo ejercicio" })
   @ApiConsumes("multipart/form-data")
-  @UseInterceptors(FileInterceptor("image"))
+  @UseInterceptors(FileInterceptor("image", { storage: memoryStorage() }))
   async create(
     @Body() createExerciseDto: CreateExerciseDto,
     @UploadedFile(
@@ -62,14 +62,25 @@ export class AdminExercisesController {
     imageFile?: Express.Multer.File,
   ) {
     try {
-      console.log('🎯 [AdminExercisesController] Iniciando creación de ejercicio...');
-      console.log('📋 [AdminExercisesController] DTO:', JSON.stringify(createExerciseDto, null, 2));
-      console.log('🖼️ [AdminExercisesController] Archivo:', imageFile ? `Presente (${imageFile.originalname})` : 'Ausente');
+      console.log(
+        "🎯 [AdminExercisesController] Iniciando creación de ejercicio...",
+      );
+      console.log(
+        "📋 [AdminExercisesController] DTO:",
+        JSON.stringify(createExerciseDto, null, 2),
+      );
+      console.log(
+        "🖼️ [AdminExercisesController] Archivo:",
+        imageFile ? `Presente (${imageFile.originalname})` : "Ausente",
+      );
 
       const exercise = await this.svc.create(createExerciseDto, imageFile);
-      
-      console.log('✅ [AdminExercisesController] Ejercicio creado exitosamente:', exercise.id);
-      
+
+      console.log(
+        "✅ [AdminExercisesController] Ejercicio creado exitosamente:",
+        exercise.id,
+      );
+
       return {
         ok: true,
         data: {
@@ -85,8 +96,8 @@ export class AdminExercisesController {
         },
       };
     } catch (error) {
-      console.error('❌ [AdminExercisesController] Error en creación:', error);
-      console.error('❌ [AdminExercisesController] Stack:', error.stack);
+      console.error("❌ [AdminExercisesController] Error en creación:", error);
+      console.error("❌ [AdminExercisesController] Stack:", error.stack);
       throw error;
     }
   }

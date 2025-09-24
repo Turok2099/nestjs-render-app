@@ -16,3 +16,4 @@ module.exports = class MakeTrainerIdNullable1758240000000 {
     }
 }
 
+
