@@ -74,7 +74,6 @@ export class Exercise {
   @Column({ name: "program_tag", type: "varchar", length: 10, nullable: true })
   programTag: ProgramTag;
 
-
   @Column({ name: "tiempo", type: "varchar", nullable: true, length: 20 })
   tiempo: string | null;
 }

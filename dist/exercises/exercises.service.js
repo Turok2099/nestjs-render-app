@@ -35,12 +35,12 @@ let ExercisesService = class ExercisesService {
         console.log("🖼️ [ExercisesService] Archivo de imagen:", imageFile
             ? `Presente (${imageFile.originalname}, ${imageFile.size} bytes)`
             : "Ausente");
-        let imageUrl = null;
+        let imagenEjercicio = null;
         if (imageFile) {
             try {
                 console.log("☁️ [ExercisesService] Subiendo imagen a Cloudinary...");
-                imageUrl = await this.cloudinaryService.uploadImage(imageFile);
-                console.log("✅ [ExercisesService] Imagen subida exitosamente:", imageUrl);
+                imagenEjercicio = await this.cloudinaryService.uploadImage(imageFile);
+                console.log("✅ [ExercisesService] Imagen subida exitosamente:", imagenEjercicio);
             }
             catch (error) {
                 console.error("❌ [ExercisesService] Error subiendo imagen a Cloudinary:", error);
@@ -51,7 +51,7 @@ let ExercisesService = class ExercisesService {
             console.log("💾 [ExercisesService] Creando entidad de ejercicio...");
             const exercise = this.repo.create({
                 ...createExerciseDto,
-                imageUrl,
+                imagenEjercicio,
             });
             console.log("💾 [ExercisesService] Guardando ejercicio en base de datos...");
             const savedExercise = await this.repo.save(exercise);
@@ -88,7 +88,6 @@ let ExercisesService = class ExercisesService {
             grupo: e.grupo,
             ejercicio: e.ejercicio,
             categoria: e.categoria,
-            imagen_grupo: e.imagenGrupo,
             imagen_ejercicio: e.imagenEjercicio,
             fuerza_series: e.fuerzaSeries,
             fuerza_repeticiones: e.fuerzaRepeticiones,
@@ -96,7 +95,6 @@ let ExercisesService = class ExercisesService {
             hipertrofia_repeticiones: e.hipertrofiaRepeticiones,
             resistencia_series: e.resistenciaSeries,
             resistencia_repeticiones: e.resistenciaRepeticiones,
-            image_url: e.imageUrl,
             tiempo: e.tiempo,
             is_active: e.isActive,
             created_at: e.createdAt,
@@ -114,10 +112,11 @@ let ExercisesService = class ExercisesService {
     async update(id, updateExerciseDto, imageFile) {
         const exercise = await this.findOne(id);
         if (imageFile) {
-            if (exercise.imageUrl) {
-                await this.cloudinaryService.deleteImage(exercise.imageUrl);
+            if (exercise.imagenEjercicio) {
+                await this.cloudinaryService.deleteImage(exercise.imagenEjercicio);
             }
-            exercise.imageUrl = await this.cloudinaryService.uploadImage(imageFile);
+            exercise.imagenEjercicio =
+                await this.cloudinaryService.uploadImage(imageFile);
         }
         Object.assign(exercise, updateExerciseDto);
         return await this.repo.save(exercise);
@@ -132,8 +131,8 @@ let ExercisesService = class ExercisesService {
     }
     async remove(id) {
         const exercise = await this.findOne(id);
-        if (exercise.imageUrl) {
-            await this.cloudinaryService.deleteImage(exercise.imageUrl);
+        if (exercise.imagenEjercicio) {
+            await this.cloudinaryService.deleteImage(exercise.imagenEjercicio);
         }
         await this.repo.remove(exercise);
     }

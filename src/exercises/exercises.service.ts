@@ -149,7 +149,8 @@ export class ExercisesService {
       }
 
       // Subir nueva imagen
-      exercise.imagenEjercicio = await this.cloudinaryService.uploadImage(imageFile);
+      exercise.imagenEjercicio =
+        await this.cloudinaryService.uploadImage(imageFile);
     }
 
     // Actualizar otros campos
@@ -170,8 +171,8 @@ export class ExercisesService {
     const exercise = await this.findOne(id);
 
     // Eliminar imagen de Cloudinary si existe
-    if (exercise.imageUrl) {
-      await this.cloudinaryService.deleteImage(exercise.imageUrl);
+    if (exercise.imagenEjercicio) {
+      await this.cloudinaryService.deleteImage(exercise.imagenEjercicio);
     }
 
     await this.repo.remove(exercise);

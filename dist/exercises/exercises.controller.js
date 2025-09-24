@@ -32,9 +32,9 @@ let ExercisesController = class ExercisesController {
                 id: exercise.id,
                 grupo: exercise.grupo,
                 ejercicio: exercise.ejercicio,
-                categoria: exercise.categoria,
-                imagenGrupo: exercise.imagen_grupo || "/Train UP.png",
-                imagenEjercicio: exercise.imagen_ejercicio || exercise.image_url || "/Train UP.png",
+                categoria: exercise.categoria?.toLowerCase() || exercise.categoria,
+                imagenGrupo: "/Train UP.png",
+                imagenEjercicio: exercise.imagen_ejercicio || "/Train UP.png",
                 fuerza: {
                     series: exercise.fuerza_series || 0,
                     repeticiones: exercise.fuerza_repeticiones || 0,
@@ -47,6 +47,7 @@ let ExercisesController = class ExercisesController {
                     series: exercise.resistencia_series || 0,
                     repeticiones: exercise.resistencia_repeticiones || exercise.tiempo || "30 min",
                 },
+                tiempo: exercise.tiempo,
             }));
             return {
                 ok: true,
@@ -70,7 +71,7 @@ let ExercisesController = class ExercisesController {
             const categories = new Map();
             result.data.forEach((exercise) => {
                 if (!categories.has(exercise.grupo)) {
-                    categories.set(exercise.grupo, exercise.imagen_grupo || "/Train UP.png");
+                    categories.set(exercise.grupo, "/Train UP.png");
                 }
             });
             return {
@@ -98,9 +99,9 @@ let ExercisesController = class ExercisesController {
                     id: exercise.id,
                     grupo: exercise.grupo,
                     ejercicio: exercise.ejercicio,
-                    categoria: exercise.categoria,
-                    imagenGrupo: exercise.imagenGrupo || "/Train UP.png",
-                    imagenEjercicio: exercise.imagenEjercicio || exercise.imageUrl || "/Train UP.png",
+                    categoria: exercise.categoria?.toLowerCase() || exercise.categoria,
+                    imagenGrupo: "/Train UP.png",
+                    imagenEjercicio: exercise.imagenEjercicio || "/Train UP.png",
                     fuerza: {
                         series: exercise.fuerzaSeries || 0,
                         repeticiones: exercise.fuerzaRepeticiones || 0,
@@ -113,6 +114,7 @@ let ExercisesController = class ExercisesController {
                         series: exercise.resistenciaSeries || 0,
                         repeticiones: exercise.resistenciaRepeticiones || exercise.tiempo || "30 min",
                     },
+                    tiempo: exercise.tiempo,
                 },
             };
         }

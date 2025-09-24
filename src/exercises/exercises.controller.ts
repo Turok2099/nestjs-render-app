@@ -121,7 +121,7 @@ export class ExercisesController {
         if (!categories.has(exercise.grupo)) {
           categories.set(
             exercise.grupo,
-            exercise.imagen_grupo || "/Train UP.png",
+            "/Train UP.png",
           );
         }
       });

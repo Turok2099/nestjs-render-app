@@ -91,7 +91,7 @@ export class AdminExercisesController {
           repeticiones: exercise.repetitions,
           tipo: exercise.type,
           programTag: exercise.programTag,
-          imagen: exercise.imageUrl,
+          imagen: exercise.imagenEjercicio,
           isActive: exercise.isActive,
         },
       };
@@ -146,7 +146,7 @@ export class AdminExercisesController {
         repeticiones: exercise.repetitions,
         tipo: exercise.type,
         programTag: exercise.programTag,
-        imagen: exercise.imageUrl,
+        imagen: exercise.imagenEjercicio,
         isActive: exercise.isActive,
       },
     };
@@ -183,7 +183,7 @@ export class AdminExercisesController {
         repeticiones: exercise.repetitions,
         tipo: exercise.type,
         programTag: exercise.programTag,
-        imagen: exercise.imageUrl,
+        imagen: exercise.imagenEjercicio,
         isActive: exercise.isActive,
       },
     };

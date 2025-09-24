@@ -32,15 +32,6 @@ __decorate([
 ], Exercise.prototype, "categoria", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        name: "imagen_grupo",
-        type: "varchar",
-        nullable: true,
-        length: 500,
-    }),
-    __metadata("design:type", String)
-], Exercise.prototype, "imagenGrupo", void 0);
-__decorate([
-    (0, typeorm_1.Column)({
         name: "imagen_ejercicio",
         type: "varchar",
         nullable: true,
@@ -105,10 +96,6 @@ __decorate([
     (0, typeorm_1.Column)({ name: "program_tag", type: "varchar", length: 10, nullable: true }),
     __metadata("design:type", String)
 ], Exercise.prototype, "programTag", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ name: "image_url", type: "varchar", nullable: true, length: 500 }),
-    __metadata("design:type", String)
-], Exercise.prototype, "imageUrl", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: "tiempo", type: "varchar", nullable: true, length: 20 }),
     __metadata("design:type", String)

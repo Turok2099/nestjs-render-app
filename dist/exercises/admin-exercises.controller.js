@@ -31,11 +31,11 @@ let AdminExercisesController = class AdminExercisesController {
     }
     async create(createExerciseDto, imageFile) {
         try {
-            console.log('🎯 [AdminExercisesController] Iniciando creación de ejercicio...');
-            console.log('📋 [AdminExercisesController] DTO:', JSON.stringify(createExerciseDto, null, 2));
-            console.log('🖼️ [AdminExercisesController] Archivo:', imageFile ? `Presente (${imageFile.originalname})` : 'Ausente');
+            console.log("🎯 [AdminExercisesController] Iniciando creación de ejercicio...");
+            console.log("📋 [AdminExercisesController] DTO:", JSON.stringify(createExerciseDto, null, 2));
+            console.log("🖼️ [AdminExercisesController] Archivo:", imageFile ? `Presente (${imageFile.originalname})` : "Ausente");
             const exercise = await this.svc.create(createExerciseDto, imageFile);
-            console.log('✅ [AdminExercisesController] Ejercicio creado exitosamente:', exercise.id);
+            console.log("✅ [AdminExercisesController] Ejercicio creado exitosamente:", exercise.id);
             return {
                 ok: true,
                 data: {
@@ -46,14 +46,14 @@ let AdminExercisesController = class AdminExercisesController {
                     repeticiones: exercise.repetitions,
                     tipo: exercise.type,
                     programTag: exercise.programTag,
-                    imagen: exercise.imageUrl,
+                    imagen: exercise.imagenEjercicio,
                     isActive: exercise.isActive,
                 },
             };
         }
         catch (error) {
-            console.error('❌ [AdminExercisesController] Error en creación:', error);
-            console.error('❌ [AdminExercisesController] Stack:', error.stack);
+            console.error("❌ [AdminExercisesController] Error en creación:", error);
+            console.error("❌ [AdminExercisesController] Stack:", error.stack);
             throw error;
         }
     }
@@ -73,7 +73,7 @@ let AdminExercisesController = class AdminExercisesController {
                 repeticiones: exercise.repetitions,
                 tipo: exercise.type,
                 programTag: exercise.programTag,
-                imagen: exercise.imageUrl,
+                imagen: exercise.imagenEjercicio,
                 isActive: exercise.isActive,
             },
         };
@@ -90,7 +90,7 @@ let AdminExercisesController = class AdminExercisesController {
                 repeticiones: exercise.repetitions,
                 tipo: exercise.type,
                 programTag: exercise.programTag,
-                imagen: exercise.imageUrl,
+                imagen: exercise.imagenEjercicio,
                 isActive: exercise.isActive,
             },
         };
@@ -108,7 +108,7 @@ __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: "Crear nuevo ejercicio" }),
     (0, swagger_1.ApiConsumes)("multipart/form-data"),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)("image")),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)("image", { storage: (0, multer_1.memoryStorage)() })),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.UploadedFile)(new common_1.ParseFilePipe({
         validators: [
