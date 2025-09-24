@@ -122,7 +122,7 @@ export class ClassesService {
       console.log("💾 [ClassesService] Creando entidad de clase...");
       const entity = this.classesRepo.create({
         title: dto.title,
-        trainerId: dto.trainerId,
+        trainerId: dto.trainerId ?? null,
         date: dto.date,
         startTime: toPgTime(dto.startTime)!, // normaliza
         endTime: toPgTime(dto.endTime)!, // normaliza
