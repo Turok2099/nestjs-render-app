@@ -4,23 +4,23 @@ import {
   Injectable,
   UnauthorizedException,
   Logger,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import * as bcrypt from 'bcryptjs';
-import { randomBytes, createHash } from 'crypto';
-import { JwtService } from '@nestjs/jwt';
-import { OAuth2Client } from 'google-auth-library';
-import { User } from '../user/entities/user.entity';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/loging.dto';
-import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
-import { EmailsService } from '../emails/emails.service';
-import { AuthResponse, AuthTokens } from './types';
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import * as bcrypt from "bcryptjs";
+import { randomBytes, createHash } from "crypto";
+import { JwtService } from "@nestjs/jwt";
+import { OAuth2Client } from "google-auth-library";
+import { User } from "../user/entities/user.entity";
+import { RegisterDto } from "./dto/register.dto";
+import { LoginDto } from "./dto/loging.dto";
+import { ForgotPasswordDto } from "./dto/forgot-password.dto";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
+import { EmailsService } from "../emails/emails.service";
+import { AuthResponse, AuthTokens } from "./types";
 
-const ACCESS_TTL = process.env.JWT_ACCESS_TTL || '24h';
-const REFRESH_TTL = process.env.JWT_REFRESH_TTL || '7d';
+const ACCESS_TTL = process.env.JWT_ACCESS_TTL || "24h";
+const REFRESH_TTL = process.env.JWT_REFRESH_TTL || "7d";
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 @Injectable()
@@ -68,7 +68,7 @@ export class AuthService {
     const exists = await this.usersRepo.findOne({
       where: { email: dto.email },
     });
-    if (exists) throw new BadRequestException('Email already in use');
+    if (exists) throw new BadRequestException("Email already in use");
 
     const user = this.usersRepo.create({
       name: dto.name,
@@ -76,7 +76,7 @@ export class AuthService {
       address: dto.address ?? null,
       phone: dto.phone ?? null,
       passwordHash: await this.hash(dto.password),
-      role: 'member',
+      role: "member",
     });
     await this.usersRepo.save(user);
 
@@ -97,15 +97,15 @@ export class AuthService {
 
   async login(dto: LoginDto): Promise<AuthResponse> {
     const user = await this.usersRepo
-      .createQueryBuilder('u')
-      .addSelect(['u.passwordHash', 'u.refreshTokenHash'])
-      .where('u.email = :email', { email: dto.email })
+      .createQueryBuilder("u")
+      .addSelect(["u.passwordHash", "u.refreshTokenHash"])
+      .where("u.email = :email", { email: dto.email })
       .getOne();
 
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (!user) throw new UnauthorizedException("Invalid credentials");
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!valid) throw new UnauthorizedException('Invalid credentials');
-    if (user.isBlocked) throw new ForbiddenException('User is blocked');
+    if (!valid) throw new UnauthorizedException("Invalid credentials");
+    if (user.isBlocked) throw new ForbiddenException("User is blocked");
 
     const { accessToken, refreshToken } = await this.signTokens(user);
     user.refreshTokenHash = await this.hash(refreshToken);
@@ -116,9 +116,9 @@ export class AuthService {
 
   async refresh(userId: string, refreshToken: string): Promise<AuthTokens> {
     const user = await this.usersRepo
-      .createQueryBuilder('u')
-      .addSelect(['u.refreshTokenHash'])
-      .where('u.id = :id', { id: userId })
+      .createQueryBuilder("u")
+      .addSelect(["u.refreshTokenHash"])
+      .where("u.id = :id", { id: userId })
       .getOne();
 
     if (!user || !user.refreshTokenHash) throw new UnauthorizedException();
@@ -149,8 +149,8 @@ export class AuthService {
     // No revelar si existe o no
     if (!user) return { accepted: true };
 
-    const raw = randomBytes(32).toString('hex');
-    const hash = createHash('sha256').update(raw).digest('hex');
+    const raw = randomBytes(32).toString("hex");
+    const hash = createHash("sha256").update(raw).digest("hex");
 
     user.resetTokenHash = hash;
     user.resetTokenExpiresAt = new Date(Date.now() + 1000 * 60 * 30); // 30 min
@@ -158,17 +158,17 @@ export class AuthService {
 
     const base =
       process.env.FRONT_RESET_URL ||
-      'http://localhost:3000/reset-password?token=';
+      "http://localhost:3000/reset-password?token=";
     await this.emails.sendPasswordResetEmail(user.email, `${base}${raw}`);
     return { accepted: true };
   }
 
   async resetPassword(dto: ResetPasswordDto) {
-    const hash = createHash('sha256').update(dto.token).digest('hex');
+    const hash = createHash("sha256").update(dto.token).digest("hex");
     const user = await this.usersRepo
-      .createQueryBuilder('u')
-      .addSelect(['u.resetTokenHash'])
-      .where('u.resetTokenHash = :hash', { hash })
+      .createQueryBuilder("u")
+      .addSelect(["u.resetTokenHash"])
+      .where("u.resetTokenHash = :hash", { hash })
       .getOne();
 
     if (
@@ -176,7 +176,7 @@ export class AuthService {
       !user.resetTokenExpiresAt ||
       user.resetTokenExpiresAt < new Date()
     ) {
-      throw new BadRequestException('Invalid or expired token');
+      throw new BadRequestException("Invalid or expired token");
     }
 
     user.passwordHash = await this.hash(dto.newPassword);
@@ -188,10 +188,10 @@ export class AuthService {
   }
 
   async googleLogin(idToken: string): Promise<AuthResponse> {
-    console.log('Iniciando login con Google');
+    console.log("Iniciando login con Google");
 
     if (!process.env.GOOGLE_CLIENT_ID) {
-      throw new BadRequestException('Missing GOOGLE_CLIENT_ID');
+      throw new BadRequestException("Missing GOOGLE_CLIENT_ID");
     }
     const ticket = await googleClient.verifyIdToken({
       idToken,
@@ -199,12 +199,12 @@ export class AuthService {
     });
     const payload = ticket.getPayload();
     if (!payload?.sub || !payload?.email) {
-      throw new BadRequestException('Invalid Google token');
+      throw new BadRequestException("Invalid Google token");
     }
 
     const googleId = payload.sub;
     const email = payload.email;
-    const name = payload.name ?? email.split('@')[0];
+    const name = payload.name ?? email.split("@")[0];
 
     console.log(`Procesando usuario: ${email} (${name})`);
 
@@ -219,21 +219,21 @@ export class AuthService {
     }
 
     if (!user) {
-      const randomPass = randomBytes(16).toString('hex');
+      const randomPass = randomBytes(16).toString("hex");
       user = this.usersRepo.create({
         name,
         email,
         googleId,
         passwordHash: await this.hash(randomPass),
-        role: 'member',
+        role: "member",
         address: null, //modificación
         phone: null, //modificación
       });
       await this.usersRepo.save(user);
-      console.log('Usuario creado exitosamente✅');
+      console.log("Usuario creado exitosamente✅");
     }
 
-    if (user.isBlocked) throw new ForbiddenException('User is blocked');
+    if (user.isBlocked) throw new ForbiddenException("User is blocked");
 
     const { accessToken, refreshToken } = await this.signTokens(user);
     user.refreshTokenHash = await this.hash(refreshToken);
@@ -261,7 +261,7 @@ export class AuthService {
     const user = await this.usersRepo.findOne({ where: { email } });
 
     if (!user) {
-      throw new BadRequestException('Usuario no encontrado');
+      throw new BadRequestException("Usuario no encontrado");
     }
 
     user.address = address;
@@ -283,11 +283,11 @@ export class AuthService {
     user.refreshTokenHash = await this.hash(refreshToken);
     await this.usersRepo.save(user);
 
-    const hasAddress = user.address && user.address.trim() !== '';
-    const hasPhone = user.phone && user.phone.trim() !== '';
+    const hasAddress = user.address && user.address.trim() !== "";
+    const hasPhone = user.phone && user.phone.trim() !== "";
     const needsCompletion = !hasAddress || !hasPhone;
 
-    console.log('✅ Datos completados:', {
+    console.log("✅ Datos completados:", {
       hasAddress,
       hasPhone,
       needsCompletion,
@@ -307,18 +307,18 @@ export class AuthService {
   }): Promise<AuthResponse> {
     const { email, name } = dto;
 
-    console.log('🔄 Sincronizando usuario existente:', email);
+    console.log("🔄 Sincronizando usuario existente:", email);
 
     let user = await this.usersRepo.findOne({ where: { email } });
 
     if (!user) {
-      console.log('🆕 Usuario no encontrado, creando nuevo usuario');
-      const randomPass = randomBytes(16).toString('hex');
+      console.log("🆕 Usuario no encontrado, creando nuevo usuario");
+      const randomPass = randomBytes(16).toString("hex");
       user = this.usersRepo.create({
         name,
         email,
         passwordHash: await this.hash(randomPass),
-        role: 'member',
+        role: "member",
         address: null,
         phone: null,
       });
@@ -326,7 +326,7 @@ export class AuthService {
     }
 
     if (user.isBlocked) {
-      throw new ForbiddenException('User is blocked');
+      throw new ForbiddenException("User is blocked");
     }
 
     const { accessToken, refreshToken } = await this.signTokens(user);

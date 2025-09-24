@@ -21,6 +21,7 @@ const subscriptions_module_1 = require("../subscriptions/subscriptions.module");
 const class_history_entity_1 = require("./entities/class-history.entity");
 const reservations_me_controller_1 = require("./reservations.me.controller");
 const reservations_user_controller_1 = require("./reservations.user.controller");
+const cloudinary_module_1 = require("../cloudinary/cloudinary.module");
 let ClassesModule = class ClassesModule {
 };
 exports.ClassesModule = ClassesModule;
@@ -29,8 +30,14 @@ exports.ClassesModule = ClassesModule = __decorate([
         imports: [
             typeorm_1.TypeOrmModule.forFeature([class_entity_1.Class, reservation_entity_1.Reservation, user_entity_1.User, class_history_entity_1.ClassHistory]),
             subscriptions_module_1.SubscriptionsModule,
+            cloudinary_module_1.CloudinaryModule,
         ],
-        controllers: [classes_controller_1.ClassesController, reservations_controller_1.ReservationsController, reservations_me_controller_1.ReservationsMeController, reservations_user_controller_1.ReservationsUserController],
+        controllers: [
+            classes_controller_1.ClassesController,
+            reservations_controller_1.ReservationsController,
+            reservations_me_controller_1.ReservationsMeController,
+            reservations_user_controller_1.ReservationsUserController,
+        ],
         providers: [classes_service_1.ClassesService, reservations_service_1.ReservationsService, classes_seed_service_1.ClassesSeedService],
         exports: [reservations_service_1.ReservationsService, classes_service_1.ClassesService],
     })

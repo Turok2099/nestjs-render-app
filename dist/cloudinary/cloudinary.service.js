@@ -19,25 +19,31 @@ let CloudinaryService = class CloudinaryService {
         this.cloudinary = cloudinary;
     }
     async uploadImage(file) {
-        return new Promise((resolve, reject) => {
-            const uploadStream = this.cloudinary.uploader.upload_stream({
+        console.log('☁️ [CloudinaryService] Iniciando subida de imagen...');
+        console.log('📁 [CloudinaryService] Archivo:', file.originalname, 'Tamaño:', file.size, 'bytes');
+        console.log('📁 [CloudinaryService] MIME type:', file.mimetype);
+        try {
+            const base64String = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+            console.log('📤 [CloudinaryService] Subiendo imagen como base64...');
+            const result = await this.cloudinary.uploader.upload(base64String, {
                 resource_type: 'image',
                 folder: 'exercises',
-            }, (error, result) => {
-                if (error) {
-                    reject(error);
-                }
-                else {
-                    if (result && result.secure_url) {
-                        resolve(result.secure_url);
-                    }
-                    else {
-                        reject(new Error("Cloudinary result is missing secure_url."));
-                    }
-                }
+                public_id: `exercise_${Date.now()}`,
             });
-            uploadStream.end(file.buffer);
-        });
+            console.log('📋 [CloudinaryService] Resultado de Cloudinary:', result);
+            if (result && result.secure_url) {
+                console.log('✅ [CloudinaryService] URL generada:', result.secure_url);
+                return result.secure_url;
+            }
+            else {
+                console.error('❌ [CloudinaryService] Resultado sin secure_url:', result);
+                throw new Error("Cloudinary result is missing secure_url.");
+            }
+        }
+        catch (error) {
+            console.error('❌ [CloudinaryService] Error en upload:', error);
+            throw error;
+        }
     }
     async deleteImage(publicUrl) {
         try {

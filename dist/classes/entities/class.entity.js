@@ -18,7 +18,15 @@ let Class = class Class {
         if (!this.date)
             return null;
         const dateObj = new Date(this.date);
-        const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        const days = [
+            "sunday",
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+        ];
         return days[dateObj.getDay()];
     }
     setDateWithDayOfWeek(date) {
@@ -28,16 +36,16 @@ let Class = class Class {
 };
 exports.Class = Class;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
+    (0, typeorm_1.PrimaryGeneratedColumn)("uuid"),
     __metadata("design:type", String)
 ], Class.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { eager: false, nullable: true }),
-    (0, typeorm_1.JoinColumn)({ name: 'trainer_id' }),
+    (0, typeorm_1.JoinColumn)({ name: "trainer_id" }),
     __metadata("design:type", user_entity_1.User)
 ], Class.prototype, "trainer", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'trainer_id', nullable: true }),
+    (0, typeorm_1.Column)({ name: "trainer_id", nullable: true }),
     __metadata("design:type", String)
 ], Class.prototype, "trainerId", void 0);
 __decorate([
@@ -45,55 +53,67 @@ __decorate([
     __metadata("design:type", String)
 ], Class.prototype, "title", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'date' }),
+    (0, typeorm_1.Column)({ type: "date" }),
     __metadata("design:type", String)
 ], Class.prototype, "date", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'start_time', type: 'time' }),
+    (0, typeorm_1.Column)({ name: "start_time", type: "time" }),
     __metadata("design:type", String)
 ], Class.prototype, "startTime", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'end_time', type: 'time' }),
+    (0, typeorm_1.Column)({ name: "end_time", type: "time" }),
     __metadata("design:type", String)
 ], Class.prototype, "endTime", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        name: 'day_of_week',
-        type: 'varchar',
+        name: "day_of_week",
+        type: "varchar",
         length: 10,
-        nullable: true
+        nullable: true,
     }),
     __metadata("design:type", String)
 ], Class.prototype, "dayOfWeek", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'int', default: 20 }),
+    (0, typeorm_1.Column)({ type: "int", default: 20 }),
     __metadata("design:type", Number)
 ], Class.prototype, "capacity", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'goal_tag', type: 'varchar', length: 20, nullable: true }),
+    (0, typeorm_1.Column)({ name: "goal_tag", type: "varchar", length: 20, nullable: true }),
     __metadata("design:type", String)
 ], Class.prototype, "goalTag", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'is_active', type: 'boolean', default: true }),
+    (0, typeorm_1.Column)({ name: "is_active", type: "boolean", default: true }),
     __metadata("design:type", Boolean)
 ], Class.prototype, "isActive", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'simple-json', nullable: true }),
+    (0, typeorm_1.Column)({ type: "simple-json", nullable: true }),
     __metadata("design:type", Array)
 ], Class.prototype, "coach", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ name: 'created_at' }),
+    (0, typeorm_1.Column)({ name: "image_url", type: "varchar", nullable: true, length: 500 }),
+    __metadata("design:type", String)
+], Class.prototype, "imageUrl", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "location", type: "varchar", nullable: true, length: 200 }),
+    __metadata("design:type", String)
+], Class.prototype, "location", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "description", type: "varchar", nullable: true, length: 500 }),
+    __metadata("design:type", String)
+], Class.prototype, "description", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)({ name: "created_at" }),
     __metadata("design:type", Date)
 ], Class.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)({ name: 'updated_at' }),
+    (0, typeorm_1.UpdateDateColumn)({ name: "updated_at" }),
     __metadata("design:type", Date)
 ], Class.prototype, "updatedAt", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => class_history_entity_1.ClassHistory, classHistory => classHistory.class),
+    (0, typeorm_1.OneToMany)(() => class_history_entity_1.ClassHistory, (classHistory) => classHistory.class),
     __metadata("design:type", Array)
 ], Class.prototype, "classHistories", void 0);
 exports.Class = Class = __decorate([
-    (0, typeorm_1.Entity)({ name: 'classes' }),
-    (0, typeorm_1.Index)(['date', 'startTime'])
+    (0, typeorm_1.Entity)({ name: "classes" }),
+    (0, typeorm_1.Index)(["date", "startTime"])
 ], Class);

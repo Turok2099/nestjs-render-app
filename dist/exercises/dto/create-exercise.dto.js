@@ -17,45 +17,72 @@ class CreateExerciseDto {
 }
 exports.CreateExerciseDto = CreateExerciseDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Nombre del ejercicio' }),
+    (0, swagger_1.ApiProperty)({ description: "Nombre del ejercicio" }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateExerciseDto.prototype, "name", void 0);
+], CreateExerciseDto.prototype, "ejercicio", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Grupo muscular' }),
+    (0, swagger_1.ApiProperty)({ description: "Grupo muscular" }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateExerciseDto.prototype, "muscleGroup", void 0);
+], CreateExerciseDto.prototype, "grupo", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Número de series', required: false }),
+    (0, swagger_1.ApiProperty)({ description: "Categoría del ejercicio", required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateExerciseDto.prototype, "categoria", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: "Series para hipertrofia", required: false }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
-], CreateExerciseDto.prototype, "series", void 0);
+], CreateExerciseDto.prototype, "hipertrofia_series", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Número de repeticiones', required: false }),
+    (0, swagger_1.ApiProperty)({
+        description: "Repeticiones para hipertrofia",
+        required: false,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
-], CreateExerciseDto.prototype, "repetitions", void 0);
+], CreateExerciseDto.prototype, "hipertrofia_repeticiones", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Tipo de ejercicio', required: false }),
+    (0, swagger_1.ApiProperty)({ description: "Series para fuerza", required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], CreateExerciseDto.prototype, "fuerza_series", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: "Repeticiones para fuerza", required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], CreateExerciseDto.prototype, "fuerza_repeticiones", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: "Series para resistencia", required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], CreateExerciseDto.prototype, "resistencia_series", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: "Repeticiones para resistencia",
+        required: false,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateExerciseDto.prototype, "type", void 0);
+], CreateExerciseDto.prototype, "resistencia_repeticiones", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Tag del programa', enum: ['max', 'hyper'], required: false }),
+    (0, swagger_1.ApiProperty)({ description: "Estado activo/inactivo", required: false }),
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsEnum)(['max', 'hyper']),
-    __metadata("design:type", String)
-], CreateExerciseDto.prototype, "programTag", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Estado activo/inactivo', required: false }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_transformer_1.Transform)(({ value }) => value === 'true'),
+    (0, class_transformer_1.Transform)(({ value }) => value === "true"),
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], CreateExerciseDto.prototype, "isActive", void 0);

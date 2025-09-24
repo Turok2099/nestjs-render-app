@@ -19,6 +19,7 @@ const typeorm_2 = require("typeorm");
 const class_entity_1 = require("./entities/class.entity");
 const reservation_entity_1 = require("./entities/reservation.entity");
 const user_entity_1 = require("../user/entities/user.entity");
+const cloudinary_service_1 = require("../cloudinary/cloudinary.service");
 const GOAL_ALIASES = {
     "perder peso": "weight_loss",
     "bajar de peso": "weight_loss",
@@ -56,28 +57,74 @@ function toPgTime(s) {
     return s.length === 5 ? `${s}:00` : s;
 }
 let ClassesService = class ClassesService {
-    constructor(classesRepo, resRepo, usersRepo) {
+    constructor(classesRepo, resRepo, usersRepo, cloudinaryService) {
         this.classesRepo = classesRepo;
         this.resRepo = resRepo;
         this.usersRepo = usersRepo;
+        this.cloudinaryService = cloudinaryService;
     }
-    async create(dto) {
-        if (dto.startTime && dto.endTime && dto.startTime >= dto.endTime) {
-            throw new common_1.BadRequestException("startTime must be before endTime");
+    async create(dto, imageFile) {
+        console.log("🏫 [ClassesService] Iniciando creación de clase...");
+        console.log("📋 [ClassesService] DTO recibido:", JSON.stringify(dto, null, 2));
+        console.log("🖼️ [ClassesService] Archivo de imagen:", imageFile
+            ? `Presente (${imageFile.originalname}, ${imageFile.size} bytes)`
+            : "Ausente");
+        if (dto.startTime && dto.endTime) {
+            console.log("🕐 [ClassesService] Validando horarios:");
+            console.log("   startTime:", dto.startTime, "(tipo:", typeof dto.startTime, ")");
+            console.log("   endTime:", dto.endTime, "(tipo:", typeof dto.endTime, ")");
+            const startMinutes = dto.startTime
+                .split(":")
+                .reduce((acc, time) => 60 * acc + parseInt(time, 10), 0);
+            const endMinutes = dto.endTime
+                .split(":")
+                .reduce((acc, time) => 60 * acc + parseInt(time, 10), 0);
+            console.log("   startMinutes:", startMinutes);
+            console.log("   endMinutes:", endMinutes);
+            if (startMinutes >= endMinutes) {
+                console.log("❌ [ClassesService] Error: startTime >= endTime");
+                throw new common_1.BadRequestException("startTime must be before endTime");
+            }
+            console.log("✅ [ClassesService] Horarios válidos");
         }
-        const entity = this.classesRepo.create({
-            title: dto.title,
-            trainerId: dto.trainerId,
-            date: dto.date,
-            startTime: toPgTime(dto.startTime),
-            endTime: toPgTime(dto.endTime),
-            capacity: dto.capacity ?? 20,
-            goalTag: dto.goalTag ?? null,
-            coach: dto.coach ?? null,
-            isActive: dto.isActive ?? true,
-        });
-        entity.setDateWithDayOfWeek(dto.date);
-        return this.classesRepo.save(entity);
+        let imageUrl = null;
+        if (imageFile) {
+            try {
+                console.log("☁️ [ClassesService] Subiendo imagen a Cloudinary...");
+                imageUrl = await this.cloudinaryService.uploadImage(imageFile);
+                console.log("✅ [ClassesService] Imagen subida exitosamente:", imageUrl);
+            }
+            catch (error) {
+                console.error("❌ [ClassesService] Error subiendo imagen a Cloudinary:", error);
+                throw new Error(`Error subiendo imagen: ${error.message}`);
+            }
+        }
+        try {
+            console.log("💾 [ClassesService] Creando entidad de clase...");
+            const entity = this.classesRepo.create({
+                title: dto.title,
+                trainerId: dto.trainerId ?? null,
+                date: dto.date,
+                startTime: toPgTime(dto.startTime),
+                endTime: toPgTime(dto.endTime),
+                capacity: dto.capacity ?? 20,
+                goalTag: dto.goalTag ?? null,
+                coach: dto.coach ?? null,
+                isActive: dto.isActive ?? true,
+                imageUrl,
+                location: dto.location ?? null,
+                description: dto.description ?? null,
+            });
+            entity.setDateWithDayOfWeek(dto.date);
+            console.log("💾 [ClassesService] Guardando clase en base de datos...");
+            const savedClass = await this.classesRepo.save(entity);
+            console.log("✅ [ClassesService] Clase guardada exitosamente:", savedClass.id);
+            return savedClass;
+        }
+        catch (error) {
+            console.error("❌ [ClassesService] Error guardando clase:", error);
+            throw error;
+        }
     }
     async findAll() {
         const classes = await this.classesRepo.find({
@@ -344,5 +391,6 @@ exports.ClassesService = ClassesService = __decorate([
     __param(2, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
-        typeorm_2.Repository])
+        typeorm_2.Repository,
+        cloudinary_service_1.CloudinaryService])
 ], ClassesService);

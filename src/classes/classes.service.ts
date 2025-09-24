@@ -115,10 +115,10 @@ export class ClassesService {
       // Convertir strings de tiempo a minutos para comparación
       const startMinutes = dto.startTime
         .split(":")
-        .reduce((acc, time) => (60 * acc) + parseInt(time, 10), 0);
+        .reduce((acc, time) => 60 * acc + parseInt(time, 10), 0);
       const endMinutes = dto.endTime
         .split(":")
-        .reduce((acc, time) => (60 * acc) + parseInt(time, 10), 0);
+        .reduce((acc, time) => 60 * acc + parseInt(time, 10), 0);
 
       console.log("   startMinutes:", startMinutes);
       console.log("   endMinutes:", endMinutes);

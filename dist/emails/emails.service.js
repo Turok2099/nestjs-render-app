@@ -10,13 +10,13 @@ exports.EmailsService = void 0;
 const common_1 = require("@nestjs/common");
 const nodemailer = require("nodemailer");
 const Handlebars = require("handlebars");
-const juice_1 = require("juice");
+const juice = require("juice");
 let EmailsService = class EmailsService {
     constructor() {
         this.transporter = null;
         this.templates = {
             welcome: {
-                subject: '¡Bienvenido/a a {{appName}}!',
+                subject: "¡Bienvenido/a a {{appName}}!",
                 html: `
       <style>
         .card{max-width:600px;margin:0 auto;padding:24px;border-radius:16px;border:1px solid #eee;font-family:Arial,Helvetica,sans-serif}
@@ -39,7 +39,7 @@ let EmailsService = class EmailsService {
       `,
             },
             reset_password: {
-                subject: 'Restablecer contraseña - {{appName}}',
+                subject: "Restablecer contraseña - {{appName}}",
                 html: `
       <div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto">
         <h2>¿Olvidaste tu contraseña?</h2>
@@ -50,7 +50,7 @@ let EmailsService = class EmailsService {
       `,
             },
             subscription_expiry_7d: {
-                subject: 'Tu membresía TrainUp vence en 7 días',
+                subject: "Tu membresía TrainUp vence en 7 días",
                 html: `
       <div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto">
         <h2>Hola {{name}},</h2>
@@ -64,7 +64,7 @@ let EmailsService = class EmailsService {
     `,
             },
             benefits_nudge: {
-                subject: 'Aprovecha al máximo tu suscripción ✨',
+                subject: "Aprovecha al máximo tu suscripción ✨",
                 html: `
       <style>
         .card{max-width:600px;margin:0 auto;padding:24px;border:1px solid #eee;border-radius:12px;font-family:Arial,Helvetica,sans-serif}
@@ -82,7 +82,7 @@ let EmailsService = class EmailsService {
       `,
             },
             payment_ok: {
-                subject: '¡Pago confirmado! 🎉 Tu suscripción ya está activa',
+                subject: "¡Pago confirmado! 🎉 Tu suscripción ya está activa",
                 html: `
     <div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto">
     <h2>¡Gracias por tu pago, {{name}}!</h2>
@@ -103,7 +103,7 @@ let EmailsService = class EmailsService {
         const user = process.env.SMTP_USER;
         const pass = process.env.SMTP_PASS;
         if (!host || !port || !user || !pass) {
-            throw new common_1.InternalServerErrorException('Faltan variables SMTP: revisa SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS');
+            throw new common_1.InternalServerErrorException("Faltan variables SMTP: revisa SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS");
         }
         this.transporter = nodemailer.createTransport({
             host,
@@ -115,7 +115,7 @@ let EmailsService = class EmailsService {
             socketTimeout: 15000,
             connectionTimeout: 15000,
             greetingTimeout: 15000,
-            tls: { ciphers: 'TLSv1.2' },
+            tls: { ciphers: "TLSv1.2" },
         });
     }
     async verifyConnection() {
@@ -124,19 +124,19 @@ let EmailsService = class EmailsService {
     }
     async send(to, subject, html, attachments) {
         this.initTransporter();
-        const from = process.env.MAIL_FROM || 'TrainUp <no-reply@trainup.local>';
+        const from = process.env.MAIL_FROM || "TrainUp <no-reply@trainup.local>";
         try {
             const info = await this.transporter.sendMail({
                 from,
                 to,
                 subject,
-                html: (0, juice_1.default)(html),
+                html: juice(html),
                 attachments,
             });
             return { ok: true, messageId: info.messageId };
         }
         catch {
-            throw new common_1.InternalServerErrorException('No se pudo enviar el correo');
+            throw new common_1.InternalServerErrorException("No se pudo enviar el correo");
         }
     }
     async renderTemplate(key, data = {}) {
@@ -144,13 +144,13 @@ let EmailsService = class EmailsService {
         if (!tpl)
             throw new common_1.NotFoundException(`Template "${key}" no existe`);
         const baseData = {
-            appName: process.env.APP_NAME || 'TrainUp',
-            baseUrl: process.env.FRONT_ORIGIN || 'http://localhost:3000',
+            appName: process.env.APP_NAME || "TrainUp",
+            baseUrl: process.env.FRONT_ORIGIN || "http://localhost:3000",
             ...data,
         };
         const subject = Handlebars.compile(tpl.subject)(baseData);
         const htmlRaw = Handlebars.compile(tpl.html)(baseData);
-        const html = (0, juice_1.default)(htmlRaw);
+        const html = juice(htmlRaw);
         return { subject, html };
     }
     async sendByTemplate(to, key, data = {}, attachments) {
@@ -158,13 +158,13 @@ let EmailsService = class EmailsService {
         return this.send(to, subject, html, attachments);
     }
     async sendWelcome(to, name) {
-        return this.sendByTemplate(to, 'welcome', {
+        return this.sendByTemplate(to, "welcome", {
             name,
-            ctaUrl: `${process.env.FRONT_ORIGIN || 'http://localhost:3000'}/login`,
+            ctaUrl: `${process.env.FRONT_ORIGIN || "http://localhost:3000"}/login`,
         });
     }
     async sendPasswordResetEmail(to, resetLink) {
-        return this.sendByTemplate(to, 'reset_password', { resetLink });
+        return this.sendByTemplate(to, "reset_password", { resetLink });
     }
 };
 exports.EmailsService = EmailsService;

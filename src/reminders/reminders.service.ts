@@ -1,12 +1,14 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThan } from 'typeorm';
-import { DateTime } from 'luxon';
+import { Injectable, Logger } from "@nestjs/common";
+import { Cron, CronExpression } from "@nestjs/schedule";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository, MoreThan } from "typeorm";
+import { DateTime } from "luxon";
 
-import { EmailsService } from '../emails/emails.service';
-import { Subscription } from '../subscriptions/entities/subscription.entity';
-import { SubscriptionReminder } from './entities/subscription-reminder.entity';
+import { EmailsService } from "src/emails/emails.service";
+import { Subscription } from "src/subscriptions/entities/subscription.entity";
+import { SubscriptionReminder } from "./entities/subscription-reminder.entity";
+
+const CRON_TZ = process.env.CRON_TZ || "America/Mexico_City";
 
 @Injectable()
 export class RemindersService {
@@ -20,99 +22,111 @@ export class RemindersService {
     private readonly emails: EmailsService,
   ) {}
 
-  // === Helpers que leen las envs ===
-  private cronsEnabled() {
-    return (process.env.CRON_ENABLED ?? '1') !== '0';
+  // ==== Helpers ENV ====
+  private cronsEnabled(): boolean {
+    return (process.env.CRON_ENABLED ?? "1") !== "0";
   }
 
-  private mode(): '10m' | '60m' | 'both' {
-    const m = (process.env.REMINDERS_BENEFITS_MODE || 'both').toLowerCase();
-    return (m === '10m' || m === '60m' || m === 'both') ? (m as any) : 'both';
+  /** '2m' | '60m' | 'both'  (por defecto 'both' para demo) */
+  private mode(): "2m" | "60m" | "both" {
+    const raw = (process.env.REMINDERS_BENEFITS_MODE || "both").toLowerCase();
+    return (["2m", "60m", "both"] as const).includes(raw as any)
+      ? (raw as any)
+      : "both";
   }
 
-  private tz() {
-    return process.env.CRON_TZ || 'America/Mexico_City';
+  /** Ventana de desduplicación en minutos (por defecto 1440 = 24h; para demo usa 5–15) */
+  private dedupMinutes(): number {
+    const n = Number(process.env.REMINDERS_DEDUP_MINUTES ?? "1440");
+    return Number.isFinite(n) && n > 0 ? n : 1440;
   }
 
-  // === Core job: enviar beneficios ===
+  // ==== Core job ====
   private async sendBenefitsNudgeBatch(): Promise<number> {
-    const since = DateTime.now().setZone(this.tz()).minus({ hours: 24 }).toJSDate();
+    const since = DateTime.now()
+      .setZone(CRON_TZ)
+      .minus({ minutes: this.dedupMinutes() })
+      .toJSDate();
 
-    // dedupe: buscar ya enviados en últimas 24h
+    // dedupe últimos N minutos
     const already = await this.reminderRepo.find({
-      where: { type: 'benefits_nudge', createdAt: MoreThan(since) } as any,
+      where: { type: "benefits_nudge", createdAt: MoreThan(since) } as any,
       select: { subscriptionId: true } as any,
     });
     const blocked = new Set(already.map((r) => r.subscriptionId));
 
-    // suscripciones activas
+    // suscripciones activas (cap a 50 por tick)
     const subs = await this.subsRepo
-      .createQueryBuilder('s')
-      .leftJoinAndSelect('s.user', 'u')
-      .where('s.status = :status', { status: 'active' })
-      .limit(50)
+      .createQueryBuilder("s")
+      .leftJoinAndSelect("s.user", "u")
+      .where("s.status = :status", { status: "active" })
+      .orderBy("s.updatedAt", "DESC")
+      .take(50)
       .getMany();
 
     const discoverUrl =
       process.env.FRONT_DISCOVER_URL ||
-      `${process.env.FRONT_ORIGIN || 'http://localhost:3000'}/descubre`;
+      `${process.env.FRONT_ORIGIN || "http://localhost:3000"}/descubre`;
 
     let sent = 0;
     for (const s of subs) {
-      // @ts-ignore: relación user cargada
       const u = (s as any).user;
       if (!u?.email) continue;
       if (blocked.has((s as any).id)) continue;
 
+      // En demo puedes forzar envío a un solo correo
+      const to = process.env.DEMO_EMAIL || u.email;
+
       try {
-        await this.emails.sendByTemplate(u.email, 'benefits_nudge', {
-          name: u.name || 'miembro',
+        await this.emails.sendByTemplate(to, "benefits_nudge", {
+          name: u.name || "miembro",
           discoverUrl,
         });
 
         await this.reminderRepo.save(
           this.reminderRepo.create({
             subscriptionId: (s as any).id,
-            type: 'benefits_nudge',
+            type: "benefits_nudge",
           }) as any,
         );
 
-        this.logger.log(`benefits_nudge enviado a ${u.email}`);
+        this.logger.log(`benefits_nudge enviado a ${to}`);
         sent++;
       } catch (e: any) {
-        this.logger.error(
-          `Error enviando a ${u?.email}: ${e?.message || String(e)}`,
-        );
+        this.logger.error(`Error enviando a ${to}: ${e?.message || String(e)}`);
       }
     }
     return sent;
   }
 
-  // === Crons programados ===
+  // ==== Crons programados ====
 
-  /** Cada 10 minutos (modo demo) */
-  @Cron(CronExpression.EVERY_10_MINUTES)
-  async benefitsEvery10m() {
+  /** 🔔 Cada 2 minutos (modo demo) */
+  @Cron("*/2 * * * *", { timeZone: CRON_TZ })
+  async benefitsEvery2m() {
+    this.logger.debug(
+      `[CRON 2m] tick mode=${this.mode()} dedup=${this.dedupMinutes()} enabled=${this.cronsEnabled()}`,
+    );
     if (!this.cronsEnabled()) return;
     const m = this.mode();
-    if (m !== '10m' && m !== 'both') return;
+    if (m !== "2m" && m !== "both") return;
 
     const sent = await this.sendBenefitsNudgeBatch();
-    if (sent) this.logger.log(`[CRON 10m] Enviados: ${sent}`);
+    this.logger.log(`[CRON 2m] Enviados: ${sent}`);
   }
 
-  /** Cada hora (modo normal) */
-  @Cron(CronExpression.EVERY_HOUR)
+  /** 📅 Cada hora (modo normal) */
+  @Cron(CronExpression.EVERY_HOUR, { timeZone: CRON_TZ })
   async benefitsHourly() {
     if (!this.cronsEnabled()) return;
     const m = this.mode();
-    if (m !== '60m' && m !== 'both') return;
+    if (m !== "60m" && m !== "both") return;
 
     const sent = await this.sendBenefitsNudgeBatch();
     if (sent) this.logger.log(`[CRON 60m] Enviados: ${sent}`);
   }
 
-  /** Endpoint manual (POST /reminders/run-benefits) */
+  /** Endpoint manual (POST /reminders/run-benefits) para pruebas en vivo */
   async runBenefitsOnce() {
     const sent = await this.sendBenefitsNudgeBatch();
     return { ok: true, sent };
