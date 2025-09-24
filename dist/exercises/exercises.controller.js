@@ -33,10 +33,10 @@ let ExercisesController = class ExercisesController {
                 grupo: exercise.grupo,
                 ejercicio: exercise.ejercicio,
                 categoria: exercise.categoria,
-                imagenGrupo: exercise.imagen_grupo || "/rutina/filtro2/default-group.png",
+                imagenGrupo: exercise.imagen_grupo || "/Train UP.png",
                 imagenEjercicio: exercise.imagen_ejercicio ||
                     exercise.image_url ||
-                    "/rutina/filtro2/default-exercise.png",
+                    "/Train UP.png",
                 fuerza: {
                     series: exercise.fuerza_series || 0,
                     repeticiones: exercise.fuerza_repeticiones || 0,
@@ -72,7 +72,7 @@ let ExercisesController = class ExercisesController {
             const categories = new Map();
             result.data.forEach((exercise) => {
                 if (!categories.has(exercise.grupo)) {
-                    categories.set(exercise.grupo, exercise.imagen_grupo || "/rutina/filtro2/default-group.png");
+                    categories.set(exercise.grupo, exercise.imagen_grupo || "/Train UP.png");
                 }
             });
             return {
@@ -101,10 +101,10 @@ let ExercisesController = class ExercisesController {
                     grupo: exercise.grupo,
                     ejercicio: exercise.ejercicio,
                     categoria: exercise.categoria,
-                    imagenGrupo: exercise.imagenGrupo || "/rutina/filtro2/default-group.png",
+                    imagenGrupo: exercise.imagenGrupo || "/Train UP.png",
                     imagenEjercicio: exercise.imagenEjercicio ||
                         exercise.imageUrl ||
-                        "/rutina/filtro2/default-exercise.png",
+                        "/Train UP.png",
                     fuerza: {
                         series: exercise.fuerzaSeries || 0,
                         repeticiones: exercise.fuerzaRepeticiones || 0,
