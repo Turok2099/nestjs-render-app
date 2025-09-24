@@ -14,9 +14,10 @@ export class CreateExerciseDto {
   @IsString()
   ejercicio: string;
 
-  @ApiProperty({ description: "Grupo muscular" })
+  @ApiProperty({ description: "Grupo muscular", required: false })
+  @IsOptional()
   @IsString()
-  grupo: string;
+  grupo?: string;
 
   @ApiProperty({ description: "Categoría del ejercicio", required: false })
   @IsOptional()
@@ -63,6 +64,11 @@ export class CreateExerciseDto {
   @IsOptional()
   @IsString()
   resistencia_repeticiones?: string;
+
+  @ApiProperty({ description: "Tiempo para ejercicios de resistencia", required: false })
+  @IsOptional()
+  @IsString()
+  tiempo?: string;
 
   @ApiProperty({ description: "Estado activo/inactivo", required: false })
   @IsOptional()

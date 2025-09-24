@@ -109,6 +109,10 @@ __decorate([
     (0, typeorm_1.Column)({ name: "image_url", type: "varchar", nullable: true, length: 500 }),
     __metadata("design:type", String)
 ], Exercise.prototype, "imageUrl", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "tiempo", type: "varchar", nullable: true, length: 20 }),
+    __metadata("design:type", String)
+], Exercise.prototype, "tiempo", void 0);
 exports.Exercise = Exercise = __decorate([
     (0, typeorm_1.Entity)({ name: "exercises" }),
     (0, typeorm_1.Index)(["grupo", "ejercicio"])

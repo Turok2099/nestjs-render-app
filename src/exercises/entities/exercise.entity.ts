@@ -84,4 +84,7 @@ export class Exercise {
 
   @Column({ name: "image_url", type: "varchar", nullable: true, length: 500 })
   imageUrl: string | null;
+
+  @Column({ name: "tiempo", type: "varchar", nullable: true, length: 20 })
+  tiempo: string | null;
 }
