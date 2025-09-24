@@ -25,14 +25,6 @@ export class Exercise {
   categoria: string | null;
 
   @Column({
-    name: "imagen_grupo",
-    type: "varchar",
-    nullable: true,
-    length: 500,
-  })
-  imagenGrupo: string | null;
-
-  @Column({
     name: "imagen_ejercicio",
     type: "varchar",
     nullable: true,
@@ -82,8 +74,6 @@ export class Exercise {
   @Column({ name: "program_tag", type: "varchar", length: 10, nullable: true })
   programTag: ProgramTag;
 
-  @Column({ name: "image_url", type: "varchar", nullable: true, length: 500 })
-  imageUrl: string | null;
 
   @Column({ name: "tiempo", type: "varchar", nullable: true, length: 20 })
   tiempo: string | null;

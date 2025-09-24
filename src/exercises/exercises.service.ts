@@ -43,16 +43,16 @@ export class ExercisesService {
         : "Ausente",
     );
 
-    let imageUrl: string | null = null;
+    let imagenEjercicio: string | null = null;
 
     // Subir imagen a Cloudinary si existe
     if (imageFile) {
       try {
         console.log("☁️ [ExercisesService] Subiendo imagen a Cloudinary...");
-        imageUrl = await this.cloudinaryService.uploadImage(imageFile);
+        imagenEjercicio = await this.cloudinaryService.uploadImage(imageFile);
         console.log(
           "✅ [ExercisesService] Imagen subida exitosamente:",
-          imageUrl,
+          imagenEjercicio,
         );
       } catch (error) {
         console.error(
@@ -67,8 +67,7 @@ export class ExercisesService {
       console.log("💾 [ExercisesService] Creando entidad de ejercicio...");
       const exercise = this.repo.create({
         ...createExerciseDto,
-        imageUrl,
-        imagenEjercicio: imageUrl, // Guardar también en imagenEjercicio para prioridad
+        imagenEjercicio,
       });
 
       console.log(
@@ -111,7 +110,6 @@ export class ExercisesService {
       grupo: e.grupo,
       ejercicio: e.ejercicio,
       categoria: e.categoria,
-      imagen_grupo: e.imagenGrupo,
       imagen_ejercicio: e.imagenEjercicio,
       fuerza_series: e.fuerzaSeries,
       fuerza_repeticiones: e.fuerzaRepeticiones,
@@ -119,7 +117,6 @@ export class ExercisesService {
       hipertrofia_repeticiones: e.hipertrofiaRepeticiones,
       resistencia_series: e.resistenciaSeries,
       resistencia_repeticiones: e.resistenciaRepeticiones,
-      image_url: e.imageUrl,
       tiempo: e.tiempo,
       is_active: e.isActive,
       created_at: e.createdAt,
@@ -147,13 +144,12 @@ export class ExercisesService {
     // Si hay una nueva imagen, subirla y eliminar la anterior si existe
     if (imageFile) {
       // Eliminar imagen anterior si existe
-      if (exercise.imageUrl) {
-        await this.cloudinaryService.deleteImage(exercise.imageUrl);
+      if (exercise.imagenEjercicio) {
+        await this.cloudinaryService.deleteImage(exercise.imagenEjercicio);
       }
 
       // Subir nueva imagen
-      exercise.imageUrl = await this.cloudinaryService.uploadImage(imageFile);
-      exercise.imagenEjercicio = exercise.imageUrl; // Guardar también en imagenEjercicio
+      exercise.imagenEjercicio = await this.cloudinaryService.uploadImage(imageFile);
     }
 
     // Actualizar otros campos
