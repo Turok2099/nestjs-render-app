@@ -66,7 +66,7 @@ export class ExercisesController {
         id: exercise.id,
         grupo: exercise.grupo,
         ejercicio: exercise.ejercicio,
-        categoria: exercise.categoria,
+        categoria: exercise.categoria?.toLowerCase() || exercise.categoria,
         imagenGrupo: exercise.imagen_grupo || "/Train UP.png",
         imagenEjercicio:
           exercise.imagen_ejercicio || exercise.image_url || "/Train UP.png",
@@ -165,7 +165,7 @@ export class ExercisesController {
           id: exercise.id,
           grupo: exercise.grupo,
           ejercicio: exercise.ejercicio,
-          categoria: exercise.categoria,
+          categoria: exercise.categoria?.toLowerCase() || exercise.categoria,
           imagenGrupo: exercise.imagenGrupo || "/Train UP.png",
           imagenEjercicio:
             exercise.imagenEjercicio || exercise.imageUrl || "/Train UP.png",
