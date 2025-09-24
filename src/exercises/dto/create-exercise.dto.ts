@@ -65,7 +65,10 @@ export class CreateExerciseDto {
   @IsString()
   resistencia_repeticiones?: string;
 
-  @ApiProperty({ description: "Tiempo para ejercicios de resistencia", required: false })
+  @ApiProperty({
+    description: "Tiempo para ejercicios de resistencia",
+    required: false,
+  })
   @IsOptional()
   @IsString()
   tiempo?: string;
