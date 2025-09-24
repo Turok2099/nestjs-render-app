@@ -186,6 +186,7 @@ export class ClassesService {
   // ---------- Listado simple (si lo usas en algún sitio) ----------
   async findAll() {
     const classes = await this.classesRepo.find({
+      where: { isActive: true }, // Solo clases activas
       relations: ["trainer"], // Incluir la relación con el trainer
     });
     return classes.map((c) => ({
@@ -213,9 +214,11 @@ export class ClassesService {
   }
 
   async findById(id: string): Promise<Class> {
-    const classEntity = await this.classesRepo.findOne({ where: { id } });
+    const classEntity = await this.classesRepo.findOne({
+      where: { id, isActive: true },
+    });
     if (!classEntity) {
-      throw new NotFoundException(`Class with ID ${id} not found`);
+      throw new NotFoundException(`Class with ID ${id} not found or inactive`);
     }
     return classEntity;
   }
