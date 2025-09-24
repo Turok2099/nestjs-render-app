@@ -39,4 +39,12 @@ export class CreateClassDto {
   @ApiPropertyOptional({ default: true })
   @IsOptional() @Transform(({ value }) => value === "true") @IsBoolean()
   isActive?: boolean;
+
+  @ApiPropertyOptional({ maxLength: 200 })
+  @IsOptional() @IsString() @MaxLength(200)
+  location?: string;
+
+  @ApiPropertyOptional({ maxLength: 500 })
+  @IsOptional() @IsString() @MaxLength(500)
+  description?: string;
 }

@@ -83,9 +83,17 @@ export class ClassesService {
     dto: CreateClassDto,
     imageFile?: Express.Multer.File,
   ): Promise<Class> {
-    console.log('🏫 [ClassesService] Iniciando creación de clase...');
-    console.log('📋 [ClassesService] DTO recibido:', JSON.stringify(dto, null, 2));
-    console.log('🖼️ [ClassesService] Archivo de imagen:', imageFile ? `Presente (${imageFile.originalname}, ${imageFile.size} bytes)` : 'Ausente');
+    console.log("🏫 [ClassesService] Iniciando creación de clase...");
+    console.log(
+      "📋 [ClassesService] DTO recibido:",
+      JSON.stringify(dto, null, 2),
+    );
+    console.log(
+      "🖼️ [ClassesService] Archivo de imagen:",
+      imageFile
+        ? `Presente (${imageFile.originalname}, ${imageFile.size} bytes)`
+        : "Ausente",
+    );
 
     if (dto.startTime && dto.endTime && dto.startTime >= dto.endTime) {
       throw new BadRequestException("startTime must be before endTime");
@@ -95,17 +103,23 @@ export class ClassesService {
 
     if (imageFile) {
       try {
-        console.log('☁️ [ClassesService] Subiendo imagen a Cloudinary...');
+        console.log("☁️ [ClassesService] Subiendo imagen a Cloudinary...");
         imageUrl = await this.cloudinaryService.uploadImage(imageFile);
-        console.log('✅ [ClassesService] Imagen subida exitosamente:', imageUrl);
+        console.log(
+          "✅ [ClassesService] Imagen subida exitosamente:",
+          imageUrl,
+        );
       } catch (error) {
-        console.error('❌ [ClassesService] Error subiendo imagen a Cloudinary:', error);
+        console.error(
+          "❌ [ClassesService] Error subiendo imagen a Cloudinary:",
+          error,
+        );
         throw new Error(`Error subiendo imagen: ${error.message}`);
       }
     }
 
     try {
-      console.log('💾 [ClassesService] Creando entidad de clase...');
+      console.log("💾 [ClassesService] Creando entidad de clase...");
       const entity = this.classesRepo.create({
         title: dto.title,
         trainerId: dto.trainerId,
@@ -117,17 +131,22 @@ export class ClassesService {
         coach: dto.coach ?? null,
         isActive: dto.isActive ?? true,
         imageUrl, // Agregar URL de la imagen
+        location: dto.location ?? null,
+        description: dto.description ?? null,
       });
 
       entity.setDateWithDayOfWeek(dto.date);
-      
-      console.log('💾 [ClassesService] Guardando clase en base de datos...');
+
+      console.log("💾 [ClassesService] Guardando clase en base de datos...");
       const savedClass = await this.classesRepo.save(entity);
-      console.log('✅ [ClassesService] Clase guardada exitosamente:', savedClass.id);
+      console.log(
+        "✅ [ClassesService] Clase guardada exitosamente:",
+        savedClass.id,
+      );
 
       return savedClass;
     } catch (error) {
-      console.error('❌ [ClassesService] Error guardando clase:', error);
+      console.error("❌ [ClassesService] Error guardando clase:", error);
       throw error;
     }
   }

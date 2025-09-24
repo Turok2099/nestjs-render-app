@@ -21,7 +21,7 @@ import { ExercisesModule } from "./exercises/exercises.module";
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'development' ? ".env.development" : undefined,
+      envFilePath: [".env.development", ".env"],
       load: [typeOrmConfig],
     }),
     TypeOrmModule.forRootAsync({
