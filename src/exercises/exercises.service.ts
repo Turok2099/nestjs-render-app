@@ -68,6 +68,7 @@ export class ExercisesService {
       const exercise = this.repo.create({
         ...createExerciseDto,
         imageUrl,
+        imagenEjercicio: imageUrl, // Guardar también en imagenEjercicio para prioridad
       });
 
       console.log(
@@ -152,6 +153,7 @@ export class ExercisesService {
 
       // Subir nueva imagen
       exercise.imageUrl = await this.cloudinaryService.uploadImage(imageFile);
+      exercise.imagenEjercicio = exercise.imageUrl; // Guardar también en imagenEjercicio
     }
 
     // Actualizar otros campos
