@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsDateString, IsIn, IsInt, IsOptional, IsString, IsUUID, Matches, MaxLength, Min, IsArray } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
 import type { GoalTag } from '../entities/class.entity';
 
 export class CreateClassDto {
@@ -24,7 +25,7 @@ export class CreateClassDto {
   endTime: string;
 
   @ApiPropertyOptional({ minimum: 1, default: 20 })
-  @IsOptional() @IsInt() @Min(1)
+  @IsOptional() @Type(() => Number) @IsInt() @Min(1)
   capacity?: number;
 
   @ApiPropertyOptional({ enum: ['weight_loss','definition','muscle_gain','mobility','cardio'] })
@@ -36,6 +37,6 @@ export class CreateClassDto {
   coach?: string[];
 
   @ApiPropertyOptional({ default: true })
-  @IsOptional() @IsBoolean()
+  @IsOptional() @Transform(({ value }) => value === "true") @IsBoolean()
   isActive?: boolean;
 }
