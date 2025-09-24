@@ -34,9 +34,7 @@ let ExercisesController = class ExercisesController {
                 ejercicio: exercise.ejercicio,
                 categoria: exercise.categoria,
                 imagenGrupo: exercise.imagen_grupo || "/Train UP.png",
-                imagenEjercicio: exercise.imagen_ejercicio ||
-                    exercise.image_url ||
-                    "/Train UP.png",
+                imagenEjercicio: exercise.imagen_ejercicio || exercise.image_url || "/Train UP.png",
                 fuerza: {
                     series: exercise.fuerza_series || 0,
                     repeticiones: exercise.fuerza_repeticiones || 0,
@@ -102,9 +100,7 @@ let ExercisesController = class ExercisesController {
                     ejercicio: exercise.ejercicio,
                     categoria: exercise.categoria,
                     imagenGrupo: exercise.imagenGrupo || "/Train UP.png",
-                    imagenEjercicio: exercise.imagenEjercicio ||
-                        exercise.imageUrl ||
-                        "/Train UP.png",
+                    imagenEjercicio: exercise.imagenEjercicio || exercise.imageUrl || "/Train UP.png",
                     fuerza: {
                         series: exercise.fuerzaSeries || 0,
                         repeticiones: exercise.fuerzaRepeticiones || 0,
