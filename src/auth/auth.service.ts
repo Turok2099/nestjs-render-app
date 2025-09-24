@@ -239,6 +239,16 @@ export class AuthService {
     user.refreshTokenHash = await this.hash(refreshToken);
     await this.usersRepo.save(user);
 
+    // Enviar email de bienvenida en todos los casos de Google Login
+    try {
+      await this.emails.sendWelcome(user.email, user.name ?? user.email);
+      this.logger?.log?.(`Welcome (Google Login) enviado a ${user.email}`);
+    } catch (err) {
+      this.logger?.warn?.(
+        `No se pudo enviar welcome (Google Login) a ${user.email}: ${err?.message ?? err}`,
+      );
+    }
+
     return { user: this.publicUser(user), accessToken, refreshToken };
   }
   async completeGoogleRegistration(dto: {
