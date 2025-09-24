@@ -22,6 +22,7 @@ const luxon_1 = require("luxon");
 const emails_service_1 = require("../emails/emails.service");
 const subscription_entity_1 = require("../subscriptions/entities/subscription.entity");
 const subscription_reminder_entity_1 = require("./entities/subscription-reminder.entity");
+const CRON_TZ = process.env.CRON_TZ || "America/Mexico_City";
 let RemindersService = RemindersService_1 = class RemindersService {
     constructor(subsRepo, reminderRepo, emails) {
         this.subsRepo = subsRepo;
@@ -30,30 +31,37 @@ let RemindersService = RemindersService_1 = class RemindersService {
         this.logger = new common_1.Logger(RemindersService_1.name);
     }
     cronsEnabled() {
-        return (process.env.CRON_ENABLED ?? '1') !== '0';
+        return (process.env.CRON_ENABLED ?? "1") !== "0";
     }
     mode() {
-        const m = (process.env.REMINDERS_BENEFITS_MODE || 'both').toLowerCase();
-        return (m === '10m' || m === '60m' || m === 'both') ? m : 'both';
+        const raw = (process.env.REMINDERS_BENEFITS_MODE || "both").toLowerCase();
+        return ["2m", "60m", "both"].includes(raw)
+            ? raw
+            : "both";
     }
-    tz() {
-        return process.env.CRON_TZ || 'America/Mexico_City';
+    dedupMinutes() {
+        const n = Number(process.env.REMINDERS_DEDUP_MINUTES ?? "1440");
+        return Number.isFinite(n) && n > 0 ? n : 1440;
     }
     async sendBenefitsNudgeBatch() {
-        const since = luxon_1.DateTime.now().setZone(this.tz()).minus({ hours: 24 }).toJSDate();
+        const since = luxon_1.DateTime.now()
+            .setZone(CRON_TZ)
+            .minus({ minutes: this.dedupMinutes() })
+            .toJSDate();
         const already = await this.reminderRepo.find({
-            where: { type: 'benefits_nudge', createdAt: (0, typeorm_2.MoreThan)(since) },
+            where: { type: "benefits_nudge", createdAt: (0, typeorm_2.MoreThan)(since) },
             select: { subscriptionId: true },
         });
         const blocked = new Set(already.map((r) => r.subscriptionId));
         const subs = await this.subsRepo
-            .createQueryBuilder('s')
-            .leftJoinAndSelect('s.user', 'u')
-            .where('s.status = :status', { status: 'active' })
-            .limit(50)
+            .createQueryBuilder("s")
+            .leftJoinAndSelect("s.user", "u")
+            .where("s.status = :status", { status: "active" })
+            .orderBy("s.updatedAt", "DESC")
+            .take(50)
             .getMany();
         const discoverUrl = process.env.FRONT_DISCOVER_URL ||
-            `${process.env.FRONT_ORIGIN || 'http://localhost:3000'}/descubre`;
+            `${process.env.FRONT_ORIGIN || "http://localhost:3000"}/descubre`;
         let sent = 0;
         for (const s of subs) {
             const u = s.user;
@@ -61,39 +69,40 @@ let RemindersService = RemindersService_1 = class RemindersService {
                 continue;
             if (blocked.has(s.id))
                 continue;
+            const to = process.env.DEMO_EMAIL || u.email;
             try {
-                await this.emails.sendByTemplate(u.email, 'benefits_nudge', {
-                    name: u.name || 'miembro',
+                await this.emails.sendByTemplate(to, "benefits_nudge", {
+                    name: u.name || "miembro",
                     discoverUrl,
                 });
                 await this.reminderRepo.save(this.reminderRepo.create({
                     subscriptionId: s.id,
-                    type: 'benefits_nudge',
+                    type: "benefits_nudge",
                 }));
-                this.logger.log(`benefits_nudge enviado a ${u.email}`);
+                this.logger.log(`benefits_nudge enviado a ${to}`);
                 sent++;
             }
             catch (e) {
-                this.logger.error(`Error enviando a ${u?.email}: ${e?.message || String(e)}`);
+                this.logger.error(`Error enviando a ${to}: ${e?.message || String(e)}`);
             }
         }
         return sent;
     }
-    async benefitsEvery10m() {
+    async benefitsEvery2m() {
+        this.logger.debug(`[CRON 2m] tick mode=${this.mode()} dedup=${this.dedupMinutes()} enabled=${this.cronsEnabled()}`);
         if (!this.cronsEnabled())
             return;
         const m = this.mode();
-        if (m !== '10m' && m !== 'both')
+        if (m !== "2m" && m !== "both")
             return;
         const sent = await this.sendBenefitsNudgeBatch();
-        if (sent)
-            this.logger.log(`[CRON 10m] Enviados: ${sent}`);
+        this.logger.log(`[CRON 2m] Enviados: ${sent}`);
     }
     async benefitsHourly() {
         if (!this.cronsEnabled())
             return;
         const m = this.mode();
-        if (m !== '60m' && m !== 'both')
+        if (m !== "60m" && m !== "both")
             return;
         const sent = await this.sendBenefitsNudgeBatch();
         if (sent)
@@ -106,13 +115,13 @@ let RemindersService = RemindersService_1 = class RemindersService {
 };
 exports.RemindersService = RemindersService;
 __decorate([
-    (0, schedule_1.Cron)(schedule_1.CronExpression.EVERY_10_MINUTES),
+    (0, schedule_1.Cron)("*/2 * * * *", { timeZone: CRON_TZ }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], RemindersService.prototype, "benefitsEvery10m", null);
+], RemindersService.prototype, "benefitsEvery2m", null);
 __decorate([
-    (0, schedule_1.Cron)(schedule_1.CronExpression.EVERY_HOUR),
+    (0, schedule_1.Cron)(schedule_1.CronExpression.EVERY_HOUR, { timeZone: CRON_TZ }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)

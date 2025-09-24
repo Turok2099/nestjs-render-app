@@ -17,6 +17,7 @@ import { StripeModule } from "./stripe/stripe.module";
 import { PaymentsModule } from "./payments/payments.module";
 import { HealthModule } from "./health/health.module";
 import { ExercisesModule } from "./exercises/exercises.module";
+import { RemindersModule } from "./reminders/reminders.module";
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -41,6 +42,7 @@ import { ExercisesModule } from "./exercises/exercises.module";
     PaymentsModule,
     HealthModule,
     ExercisesModule,
+    RemindersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

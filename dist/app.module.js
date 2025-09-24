@@ -26,6 +26,7 @@ const stripe_module_1 = require("./stripe/stripe.module");
 const payments_module_1 = require("./payments/payments.module");
 const health_module_1 = require("./health/health.module");
 const exercises_module_1 = require("./exercises/exercises.module");
+const reminders_module_1 = require("./reminders/reminders.module");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer.apply(logger_middleware_1.LoggerMiddleware).forRoutes("*");
@@ -56,6 +57,7 @@ exports.AppModule = AppModule = __decorate([
             payments_module_1.PaymentsModule,
             health_module_1.HealthModule,
             exercises_module_1.ExercisesModule,
+            reminders_module_1.RemindersModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
