@@ -81,7 +81,10 @@ __decorate([
     __metadata("design:type", String)
 ], CreateExerciseDto.prototype, "resistencia_repeticiones", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: "Tiempo para ejercicios de resistencia", required: false }),
+    (0, swagger_1.ApiProperty)({
+        description: "Tiempo para ejercicios de resistencia",
+        required: false,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)

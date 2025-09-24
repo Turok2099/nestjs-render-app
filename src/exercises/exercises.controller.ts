@@ -17,30 +17,62 @@ export class ExercisesController {
 
   @Get()
   @ApiOperation({ summary: "Listar ejercicios públicos (solo activos)" })
-  @ApiQuery({ name: "q", required: false, type: String, description: "Búsqueda por nombre" })
-  @ApiQuery({ name: "muscleGroup", required: false, type: String, description: "Filtrar por grupo muscular" })
-  @ApiQuery({ name: "type", required: false, type: String, description: "Filtrar por tipo/categoría" })
-  @ApiQuery({ name: "page", required: false, type: Number, description: "Número de página" })
-  @ApiQuery({ name: "limit", required: false, type: Number, description: "Elementos por página" })
-  @ApiResponse({ status: 200, description: "Lista de ejercicios obtenida exitosamente" })
+  @ApiQuery({
+    name: "q",
+    required: false,
+    type: String,
+    description: "Búsqueda por nombre",
+  })
+  @ApiQuery({
+    name: "muscleGroup",
+    required: false,
+    type: String,
+    description: "Filtrar por grupo muscular",
+  })
+  @ApiQuery({
+    name: "type",
+    required: false,
+    type: String,
+    description: "Filtrar por tipo/categoría",
+  })
+  @ApiQuery({
+    name: "page",
+    required: false,
+    type: Number,
+    description: "Número de página",
+  })
+  @ApiQuery({
+    name: "limit",
+    required: false,
+    type: Number,
+    description: "Elementos por página",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Lista de ejercicios obtenida exitosamente",
+  })
   async list(@Query() query: ListExercisesDto) {
     try {
       // Forzar que solo se muestren ejercicios activos para usuarios públicos
-      const publicQuery = {
+      const publicQuery: ListExercisesDto = {
         ...query,
-        isActive: "true", // Solo ejercicios activos
+        isActive: "true" as "true", // Solo ejercicios activos
       };
 
       const result = await this.exercisesService.list(publicQuery);
-      
+
       // Mapear a formato compatible con el frontend de rutinas
       const exercisesForRoutine = result.data.map((exercise) => ({
         id: exercise.id,
         grupo: exercise.grupo,
         ejercicio: exercise.ejercicio,
         categoria: exercise.categoria,
-        imagenGrupo: exercise.imagen_grupo || "/rutina/filtro2/default-group.png",
-        imagenEjercicio: exercise.imagen_ejercicio || exercise.image_url || "/rutina/filtro2/default-exercise.png",
+        imagenGrupo:
+          exercise.imagen_grupo || "/rutina/filtro2/default-group.png",
+        imagenEjercicio:
+          exercise.imagen_ejercicio ||
+          exercise.image_url ||
+          "/rutina/filtro2/default-exercise.png",
         fuerza: {
           series: exercise.fuerza_series || 0,
           repeticiones: exercise.fuerza_repeticiones || 0,
@@ -51,7 +83,8 @@ export class ExercisesController {
         },
         resistencia: {
           series: exercise.resistencia_series || 0,
-          repeticiones: exercise.resistencia_repeticiones || exercise.tiempo || "30 min",
+          repeticiones:
+            exercise.resistencia_repeticiones || exercise.tiempo || "30 min",
         },
       }));
 
@@ -73,17 +106,26 @@ export class ExercisesController {
 
   @Get("categories")
   @ApiOperation({ summary: "Obtener categorías/grupos musculares disponibles" })
-  @ApiResponse({ status: 200, description: "Categorías obtenidas exitosamente" })
+  @ApiResponse({
+    status: 200,
+    description: "Categorías obtenidas exitosamente",
+  })
   async getCategories() {
     try {
       // Obtener todos los ejercicios activos
-      const result = await this.exercisesService.list({ isActive: "true", limit: "1000" });
-      
+      const result = await this.exercisesService.list({
+        isActive: "true",
+        limit: "1000",
+      });
+
       // Extraer categorías únicas
       const categories = new Map<string, string>();
       result.data.forEach((exercise) => {
         if (!categories.has(exercise.grupo)) {
-          categories.set(exercise.grupo, exercise.imagen_grupo || "/rutina/filtro2/default-group.png");
+          categories.set(
+            exercise.grupo,
+            exercise.imagen_grupo || "/rutina/filtro2/default-group.png",
+          );
         }
       });
 
@@ -110,7 +152,7 @@ export class ExercisesController {
   async findOne(@Param("id") id: string) {
     try {
       const exercise = await this.exercisesService.findOne(id);
-      
+
       if (!exercise.isActive) {
         throw new HttpException(
           "Ejercicio no disponible",
@@ -126,8 +168,12 @@ export class ExercisesController {
           grupo: exercise.grupo,
           ejercicio: exercise.ejercicio,
           categoria: exercise.categoria,
-          imagenGrupo: exercise.imagenGrupo || "/rutina/filtro2/default-group.png",
-          imagenEjercicio: exercise.imagenEjercicio || exercise.imageUrl || "/rutina/filtro2/default-exercise.png",
+          imagenGrupo:
+            exercise.imagenGrupo || "/rutina/filtro2/default-group.png",
+          imagenEjercicio:
+            exercise.imagenEjercicio ||
+            exercise.imageUrl ||
+            "/rutina/filtro2/default-exercise.png",
           fuerza: {
             series: exercise.fuerzaSeries || 0,
             repeticiones: exercise.fuerzaRepeticiones || 0,
@@ -138,7 +184,8 @@ export class ExercisesController {
           },
           resistencia: {
             series: exercise.resistenciaSeries || 0,
-            repeticiones: exercise.resistenciaRepeticiones || exercise.tiempo || "30 min",
+            repeticiones:
+              exercise.resistenciaRepeticiones || exercise.tiempo || "30 min",
           },
         },
       };

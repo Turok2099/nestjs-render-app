@@ -94,6 +94,8 @@ let ExercisesService = class ExercisesService {
             hipertrofia_repeticiones: e.hipertrofiaRepeticiones,
             resistencia_series: e.resistenciaSeries,
             resistencia_repeticiones: e.resistenciaRepeticiones,
+            image_url: e.imageUrl,
+            tiempo: e.tiempo,
             is_active: e.isActive,
             created_at: e.createdAt,
             updated_at: e.updatedAt,

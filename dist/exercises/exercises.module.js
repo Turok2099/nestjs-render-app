@@ -13,16 +13,14 @@ const cloudinary_module_1 = require("../cloudinary/cloudinary.module");
 const exercise_entity_1 = require("./entities/exercise.entity");
 const exercises_service_1 = require("./exercises.service");
 const admin_exercises_controller_1 = require("./admin-exercises.controller");
+const exercises_controller_1 = require("./exercises.controller");
 let ExercisesModule = class ExercisesModule {
 };
 exports.ExercisesModule = ExercisesModule;
 exports.ExercisesModule = ExercisesModule = __decorate([
     (0, common_1.Module)({
-        imports: [
-            typeorm_1.TypeOrmModule.forFeature([exercise_entity_1.Exercise]),
-            cloudinary_module_1.CloudinaryModule,
-        ],
-        controllers: [admin_exercises_controller_1.AdminExercisesController],
+        imports: [typeorm_1.TypeOrmModule.forFeature([exercise_entity_1.Exercise]), cloudinary_module_1.CloudinaryModule],
+        controllers: [admin_exercises_controller_1.AdminExercisesController, exercises_controller_1.ExercisesController],
         providers: [exercises_service_1.ExercisesService],
         exports: [exercises_service_1.ExercisesService],
     })
