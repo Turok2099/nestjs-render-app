@@ -1,9 +1,13 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
-import * as Handlebars from 'handlebars';
-import juice from 'juice'; 
-import type { Attachment } from 'nodemailer/lib/mailer';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from "@nestjs/common";
+import * as nodemailer from "nodemailer";
+import SMTPTransport from "nodemailer/lib/smtp-transport";
+import * as Handlebars from "handlebars";
+import * as juice from "juice";
+import type { Attachment } from "nodemailer/lib/mailer";
 
 @Injectable()
 export class EmailsService {
@@ -12,7 +16,7 @@ export class EmailsService {
   // Registro simple de plantillas en memoria
   private templates: Record<string, { subject: string; html: string }> = {
     welcome: {
-      subject: '¡Bienvenido/a a {{appName}}!',
+      subject: "¡Bienvenido/a a {{appName}}!",
       html: `
       <style>
         .card{max-width:600px;margin:0 auto;padding:24px;border-radius:16px;border:1px solid #eee;font-family:Arial,Helvetica,sans-serif}
@@ -35,7 +39,7 @@ export class EmailsService {
       `,
     },
     reset_password: {
-      subject: 'Restablecer contraseña - {{appName}}',
+      subject: "Restablecer contraseña - {{appName}}",
       html: `
       <div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto">
         <h2>¿Olvidaste tu contraseña?</h2>
@@ -45,9 +49,9 @@ export class EmailsService {
       </div>
       `,
     },
-      subscription_expiry_7d: {
-    subject: 'Tu membresía TrainUp vence en 7 días',
-    html: `
+    subscription_expiry_7d: {
+      subject: "Tu membresía TrainUp vence en 7 días",
+      html: `
       <div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto">
         <h2>Hola {{name}},</h2>
         <p>Tu membresía de <b>{{appName}}</b> vence el <strong>{{endDate}}</strong>.</p>
@@ -58,9 +62,9 @@ export class EmailsService {
         </div>
       </div>
     `,
-  },
+    },
     benefits_nudge: {
-      subject: 'Aprovecha al máximo tu suscripción ✨',
+      subject: "Aprovecha al máximo tu suscripción ✨",
       html: `
       <style>
         .card{max-width:600px;margin:0 auto;padding:24px;border:1px solid #eee;border-radius:12px;font-family:Arial,Helvetica,sans-serif}
@@ -78,8 +82,8 @@ export class EmailsService {
       `,
     },
     payment_ok: {
-    subject: '¡Pago confirmado! 🎉 Tu suscripción ya está activa',
-     html: `
+      subject: "¡Pago confirmado! 🎉 Tu suscripción ya está activa",
+      html: `
     <div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto">
     <h2>¡Gracias por tu pago, {{name}}!</h2>
     <p>Tu suscripción al plan <b>{{planName}}</b> ya está activa.</p>
@@ -88,7 +92,7 @@ export class EmailsService {
     <p><a href="{{baseUrl}}">Entrar a {{appName}}</a></p>
     </div>
   `,
-  },
+    },
   };
 
   private initTransporter() {
@@ -101,7 +105,7 @@ export class EmailsService {
 
     if (!host || !port || !user || !pass) {
       throw new InternalServerErrorException(
-        'Faltan variables SMTP: revisa SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS',
+        "Faltan variables SMTP: revisa SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS",
       );
     }
 
@@ -115,7 +119,7 @@ export class EmailsService {
       socketTimeout: 15000,
       connectionTimeout: 15000,
       greetingTimeout: 15000,
-      tls: { ciphers: 'TLSv1.2' },
+      tls: { ciphers: "TLSv1.2" },
     } as SMTPTransport.Options);
   }
 
@@ -124,61 +128,63 @@ export class EmailsService {
     return this.transporter!.verify();
   }
 
-  async send(to: string, subject: string, html: string, attachments?: Attachment[]) {
-  this.initTransporter();
-  const from = process.env.MAIL_FROM || 'TrainUp <no-reply@trainup.local>';
-  try {
-    const info = await this.transporter!.sendMail({
-      from,
-      to,
-      subject,
-      html: juice(html), // estilos inline para mejor render
-      attachments,
-    });
-    return { ok: true, messageId: info.messageId };
-  } catch {
-    throw new InternalServerErrorException('No se pudo enviar el correo');
+  async send(
+    to: string,
+    subject: string,
+    html: string,
+    attachments?: Attachment[],
+  ) {
+    this.initTransporter();
+    const from = process.env.MAIL_FROM || "TrainUp <no-reply@trainup.local>";
+    try {
+      const info = await this.transporter!.sendMail({
+        from,
+        to,
+        subject,
+        html: juice(html), // estilos inline para mejor render
+        attachments,
+      });
+      return { ok: true, messageId: info.messageId };
+    } catch {
+      throw new InternalServerErrorException("No se pudo enviar el correo");
+    }
   }
-}
 
+  async renderTemplate(key: string, data: Record<string, any> = {}) {
+    const tpl = this.templates[key];
+    if (!tpl) throw new NotFoundException(`Template "${key}" no existe`);
 
- async renderTemplate(key: string, data: Record<string, any> = {}) {  
-  const tpl = this.templates[key];
-  if (!tpl) throw new NotFoundException(`Template "${key}" no existe`);
+    const baseData = {
+      appName: process.env.APP_NAME || "TrainUp",
+      baseUrl: process.env.FRONT_ORIGIN || "http://localhost:3000",
+      ...data,
+    };
 
-  const baseData = {
-    appName: process.env.APP_NAME || 'TrainUp',
-    baseUrl: process.env.FRONT_ORIGIN || 'http://localhost:3000',
-    ...data, 
-  };
+    const subject = Handlebars.compile(tpl.subject)(baseData);
+    const htmlRaw = Handlebars.compile(tpl.html)(baseData);
+    const html = juice(htmlRaw);
 
-  const subject = Handlebars.compile(tpl.subject)(baseData);
-  const htmlRaw = Handlebars.compile(tpl.html)(baseData);
-  const html = juice(htmlRaw);
+    return { subject, html };
+  }
 
-  return { subject, html };
-}
-
-async sendByTemplate(
-  to: string,
-  key: string,
-  data: Record<string, any> = {},   
-  attachments?: Attachment[],        
-) {
-  const { subject, html } = await this.renderTemplate(key, data);
-  return this.send(to, subject, html, attachments);
-}
-
+  async sendByTemplate(
+    to: string,
+    key: string,
+    data: Record<string, any> = {},
+    attachments?: Attachment[],
+  ) {
+    const { subject, html } = await this.renderTemplate(key, data);
+    return this.send(to, subject, html, attachments);
+  }
 
   async sendWelcome(to: string, name: string) {
-    return this.sendByTemplate(to, 'welcome', {
+    return this.sendByTemplate(to, "welcome", {
       name,
-      ctaUrl: `${process.env.FRONT_ORIGIN || 'http://localhost:3000'}/login`,
+      ctaUrl: `${process.env.FRONT_ORIGIN || "http://localhost:3000"}/login`,
     });
   }
 
   async sendPasswordResetEmail(to: string, resetLink: string) {
-    return this.sendByTemplate(to, 'reset_password', { resetLink });
+    return this.sendByTemplate(to, "reset_password", { resetLink });
   }
 }
-
